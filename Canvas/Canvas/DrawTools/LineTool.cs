@@ -132,6 +132,7 @@ namespace Canvas.DrawTools
 			Width = layer.Width;
 			Color = layer.Color;
 			Selected = true;
+
 		}
 
 		static int ThresholdPixel = 6;
@@ -193,8 +194,8 @@ namespace Canvas.DrawTools
 		{
 			Color color = Color;
 			Pen pen = canvas.CreatePen(color, Width);
-			pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-			pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+			pen.EndCap = LineCap.Round;
+			pen.StartCap = LineCap.Round;
 			canvas.DrawLine(canvas, pen, m_p1, m_p2);
 			if (Highlighted)
 				canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_p1, m_p2);

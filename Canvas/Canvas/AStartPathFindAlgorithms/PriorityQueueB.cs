@@ -9,10 +9,7 @@
 //
 //  Copyright (C) 2006 Franco, Gustavo 
 //
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace AStartPathFindAlgorithms
 {

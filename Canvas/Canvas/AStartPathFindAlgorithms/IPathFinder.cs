@@ -9,9 +9,7 @@
 //
 //  Copyright (C) 2006 Franco, Gustavo 
 //
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 
 namespace AStartPathFindAlgorithms

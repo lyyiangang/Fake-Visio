@@ -61,6 +61,7 @@
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
+    <Compile Include="AStartPathFindAlgorithms\AStartPathFinderWrapper.cs" />
     <Compile Include="AStartPathFindAlgorithms\AuthorAttribute.cs" />
     <Compile Include="AStartPathFindAlgorithms\HighResolutionTime.cs" />
     <Compile Include="AStartPathFindAlgorithms\IPathFinder.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="DrawTools\CubicBezierTool.cs" />
     <Compile Include="DrawTools\DrawToolsUtils.cs" />
     <Compile Include="DrawTools\LineTool.cs" />
+    <Compile Include="DrawTools\MultiConnectionLines.cs" />
     <Compile Include="DrawTools\OvalTool.cs" />
     <Compile Include="DrawTools\RectangleTool.cs" />
     <Compile Include="DrawTools\RectBaseTool.cs" />
