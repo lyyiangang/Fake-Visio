@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using Canvas.AStartPathFindAlgorithms;
 
 namespace Canvas.DrawTools
 {
     class MultiConnectionLines : DrawObjectBase, IDrawObject, ISerialize
     {
+        protected AStartPathFinderWrapper m_pathFinder = null;
         protected List<UnitPoint> m_allPts;
 		protected static int ThresholdPixel = 6;
         UnitPoint m_startPt, m_endPt;
@@ -94,20 +95,26 @@ namespace Canvas.DrawTools
 
         public void Draw(ICanvas canvas, RectangleF unitrect)
         {
+            if (m_allPts.Count < 2)
+                return;
             Color color = Color;
             Pen pen = canvas.CreatePen(color, Width);
             pen.EndCap = LineCap.Round;
             pen.StartCap = LineCap.Round;
-            canvas.DrawLine(canvas, pen, m_startPt, m_endPt);
-            if (Highlighted)
-                canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_startPt, m_endPt);
-            if (Selected)
+            //canvas.DrawLine(canvas, pen, m_startPt, m_endPt);
+            //if (Highlighted)
+            //    canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_startPt, m_endPt);
+            //if (Selected)
+            //{
+            //    canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_startPt, m_endPt);
+            //    if (!m_startPt.IsEmpty )
+            //        DrawUtils.DrawNode(canvas, m_startPt);
+            //    if (!m_startPt.IsEmpty )
+            //        DrawUtils.DrawNode(canvas, m_endPt);
+            //}
+            for(int ii=0;ii< m_allPts.Count-1;++ii)
             {
-                canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_startPt, m_endPt);
-                if (!m_startPt.IsEmpty )
-                    DrawUtils.DrawNode(canvas, m_startPt);
-                if (!m_startPt.IsEmpty )
-                    DrawUtils.DrawNode(canvas, m_endPt);
+                canvas.DrawLine(canvas, pen, m_allPts[ii], m_allPts[ii + 1]);
             }
         }
 
@@ -185,7 +192,14 @@ namespace Canvas.DrawTools
         }
         void UpdatePath(ICanvas canvas)
         {
-
+            if (m_pathFinder == null)
+            {
+                System.Diagnostics.Debug.Assert(canvas.PixelMatrix != null);
+                m_pathFinder = new AStartPathFinderWrapper(eAstartPathFinderType.PathFinder, canvas.PixelMatrix);
+            }
+            Point pStart = ScreenUtils.ConvertPoint(canvas.ToScreen(m_startPt));
+            Point pEnd = ScreenUtils.ConvertPoint(canvas.ToScreen(m_endPt));
+            m_allPts= m_pathFinder.FindPath(pStart, pEnd,canvas);
         }
         public void OnMouseUp(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)
         {
