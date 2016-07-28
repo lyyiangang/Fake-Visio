@@ -1,4 +1,5 @@
 ﻿using AStartPathFindAlgorithms;
+using System.Collections.Generic;
 
 namespace Canvas.AStartPathFindAlgorithms
 {
@@ -10,17 +11,16 @@ namespace Canvas.AStartPathFindAlgorithms
     class AStartPathFinderWrapper
     {
         private IPathFinder mPathFinder = null;
-        public AStartPathFinderWrapper(eAstartPathFinderType type)
+        public AStartPathFinderWrapper(eAstartPathFinderType type, byte[,] grid)
         {
             if(type==eAstartPathFinderType.PathFinderFast)
             {
-             //   mPathFinder = new PathFinderFast(PnlGUI.Matrix);
+                mPathFinder = new PathFinderFast(grid);
 
             }
             else if(type == eAstartPathFinderType.PathFinder)
             {
-                 //   mPathFinder = new PathFinder(PnlGUI.Matrix);
-
+                mPathFinder = new PathFinder(grid);
             }
             mPathFinder.Formula = HeuristicFormula.Euclidean;
             mPathFinder.Diagonals = false;
@@ -33,10 +33,16 @@ namespace Canvas.AStartPathFindAlgorithms
             mPathFinder.ReopenCloseNodes = false;
             mPathFinder.DebugFoundPath = true;
         }
-        //public List<PathFinderNode> StartFind()
-        //{
-        //    List<PathFinderNode> path = mPathFinder.FindPath(PnlGUI.Start, PnlGUI.End);
-
-        //}
+        public List<UnitPoint> FindPath(System.Drawing.Point startPt,System.Drawing.Point endPt,ICanvas canvas)
+        {
+            List<PathFinderNode> path = mPathFinder.FindPath(startPt,endPt);
+            List<UnitPoint> allPts = new List<UnitPoint>();
+            foreach(var tmpNode in path)
+            {
+                System.Drawing.PointF pt = new System.Drawing.PointF(tmpNode.X, tmpNode.Y);
+                allPts.Add(canvas.ToUnit(pt));
+            }
+            return allPts;
+        }
     }
 }

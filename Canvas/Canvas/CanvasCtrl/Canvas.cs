@@ -115,14 +115,25 @@ namespace Canvas
 			m_canvas.DoInvalidate(false);
 		}
 
-
+        public RectangleF ScreenPixelRectToUnitRect()
+        {
+            return m_canvas.ScreenPixelRectToUnitRect();
+        }
 
         public IDrawObject CurrentObject
 		{
 			get { return m_canvas.NewObject; }
 		}
-		#endregion
-	}
+
+        public byte[,] PixelMatrix
+        {
+            get
+            {
+                return m_canvas.PixelMatrix;
+            }
+        }
+        #endregion
+    }
 	public partial class CanvasCtrl : UserControl
 	{
 		enum eCommandType
@@ -177,7 +188,12 @@ namespace Canvas
 			get { return m_model; }
 			set { m_model = value; }
 		}
-		public CanvasCtrl(ICanvasOwner owner, IModel datamodel)
+        byte[,] m_pixelMatrix=null;
+        public byte[,] PixelMatrix
+        {
+            get { return m_pixelMatrix; }
+        }
+        public CanvasCtrl(ICanvasOwner owner, IModel datamodel)
 		{
 			m_canvaswrapper = new CanvasWrapper(this);
 			m_owner = owner;
@@ -405,7 +421,9 @@ namespace Canvas
 		{
 			get { return m_newObject; }
 		}
-		protected void HandleSelection(List<IDrawObject> selected)
+
+
+        protected void HandleSelection(List<IDrawObject> selected)
 		{
 			bool add = Control.ModifierKeys == Keys.Shift;
 			bool toggle = Control.ModifierKeys == Keys.Control;
@@ -669,7 +687,6 @@ namespace Canvas
 			m_owner.SetPositionInfo(unitpoint);
 			m_owner.SetSnapInfo(m_snappoint);
 
-
 			//UnitPoint mousepoint;
 			if (m_snappoint != null)
 				mousepoint = m_snappoint.SnapPoint;
@@ -721,6 +738,36 @@ namespace Canvas
 			DoInvalidate(true);
 			base.OnMouseWheel(e);
 		}
+        protected void UpdatePixelMatrix()
+        {
+             int nx = ClientRectangle.Width;
+            int ny = ClientRectangle.Height;
+            if(m_pixelMatrix==null)
+                m_pixelMatrix = new byte[nx,ny];
+            for (int ii = 0; ii < nx; ++ii)
+            {
+                for(int jj=0;jj<ny;++jj)
+                {//init
+                    m_pixelMatrix[ii, jj] = 1;
+                }
+            }
+
+           List<IDrawObject> allObjs= m_model.GetHitObjects(m_canvaswrapper, ScreenPixelRectToUnitRect(), false);
+            foreach(var obj in allObjs)
+            {
+                DrawTools.RectBase rectBase = obj as DrawTools.RectBase;
+                if (rectBase == null)
+                    continue;
+                Rectangle pixelRect = ScreenUtils.ConvertRect(ScreenUtils.ToScreen(m_canvaswrapper, rectBase.GetBoundingRect(m_canvaswrapper)));
+                for(int ii=pixelRect.Y;ii<pixelRect.Height+pixelRect.Y;++ii)
+                {
+                    for(int jj=pixelRect.X;jj<pixelRect.Width;++jj)
+                    {
+                        m_pixelMatrix[jj, ii] = 5;
+                    }
+                }
+            }
+        }
 		protected override void OnResize(EventArgs e)
 		{
 			base.OnResize(e);
@@ -729,6 +776,8 @@ namespace Canvas
 				SetCenterScreen(ToScreen(m_lastCenterPoint), false);
 			m_lastCenterPoint = CenterPointUnit();
 			m_staticImage = null;
+            m_pixelMatrix = null;
+            UpdatePixelMatrix();
 			DoInvalidate(true);
 		}
 
@@ -743,7 +792,7 @@ namespace Canvas
 		}
 		float ScreenHeight()
 		{
-			return (float)(ToUnit(this.ClientRectangle.Height) / m_model.Zoom);
+			return (float)(ToUnit(ClientRectangle.Height) / m_model.Zoom);
 		}
 
 		#region ICanvas
@@ -762,9 +811,16 @@ namespace Canvas
 		}
 		public UnitPoint ScreenBottomRightToUnitPoint()
 		{
-			return ToUnit(new PointF(this.ClientRectangle.Width, this.ClientRectangle.Height));
+			return ToUnit(new PointF(ClientRectangle.Width, ClientRectangle.Height));
 		}
-		public PointF ToScreen(UnitPoint point)
+        public RectangleF ScreenPixelRectToUnitRect()
+        {
+            UnitPoint bottomRightPos = ScreenBottomRightToUnitPoint();
+            double width = ToUnit(ClientRectangle.Width);
+            double height = ToUnit(ClientRectangle.Height);
+            return new RectangleF(bottomRightPos.Point.X,bottomRightPos.Point.Y,(float) width, (float)height);
+        }
+        public PointF ToScreen(UnitPoint point)
 		{
 			PointF transformedPoint = Translate(point);
 			transformedPoint.Y = ScreenHeight() - transformedPoint.Y;

@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using System.Xml;
 using System.IO;
 using System.Reflection;
 
 namespace Canvas
 {
-	public class DataModel : IModel
+    public class DataModel : IModel
 	{
 		static Dictionary<string, Type> m_toolTypes = new Dictionary<string,Type>();
 		static public IDrawObject NewDrawObject(string objecttype)
