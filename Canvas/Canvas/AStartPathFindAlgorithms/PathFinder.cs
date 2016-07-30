@@ -99,7 +99,6 @@ namespace AStartPathFindAlgorithms
             mGrid = grid;
         }
         #endregion
-
         #region Properties
         public bool Stopped
         {

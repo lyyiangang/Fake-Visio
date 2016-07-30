@@ -196,7 +196,7 @@ namespace AStartPathFindAlgorithms
         {
             mStop = true;
         }
-
+        //grid should be null
         public List<PathFinderNode> FindPath(Point start, Point end)
         {
             lock(this)
