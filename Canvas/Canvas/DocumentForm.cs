@@ -232,6 +232,14 @@ namespace Canvas
             mmitem.Tag = "rectangle";
             m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.RectangleShape());
 
+            mmitem = m_menuItems.GetItem("MultiConnectionLines");
+            mmitem.Text = "MultiConnectionLines";
+            mmitem.ToolTipText = "MultiConnectionLines";
+            mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.ArcCR);
+            mmitem.Click += new EventHandler(OnToolSelect);
+            mmitem.Tag = "multiConnectionLines";
+            m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.MultiConnectionLines());
+
             ToolStrip strip = m_menuItems.GetStrip("draw");
 			strip.Items.Add(m_menuItems.GetItem("Lines").CreateButton());
 			strip.Items.Add(m_menuItems.GetItem("Circle2P").CreateButton());
@@ -240,12 +248,13 @@ namespace Canvas
 			strip.Items.Add(m_menuItems.GetItem("Bezier").CreateButton());
 			strip.Items.Add(m_menuItems.GetItem("Oval").CreateButton());
 			strip.Items.Add(m_menuItems.GetItem("Rectangle").CreateButton());
+			strip.Items.Add(m_menuItems.GetItem("MultiConnectionLines").CreateButton());
             strip.Items.Add(m_menuItems.GetItem("ArcCR").CreateButton());
             strip.Items.Add(m_menuItems.GetItem("Arc3P132").CreateButton());
 			strip.Items.Add(m_menuItems.GetItem("Arc3P123").CreateButton());
 
 			ToolStripMenuItem menu = m_menuItems.GetMenuStrip("draw");
-			menu.MergeAction = System.Windows.Forms.MergeAction.Insert;
+			menu.MergeAction = MergeAction.Insert;
 			menu.MergeIndex = 2;
 			menu.Text = "Draw &Tools";
 			menu.DropDownItems.Add(m_menuItems.GetItem("Lines").CreateMenuItem());
@@ -257,6 +266,7 @@ namespace Canvas
 			menu.DropDownItems.Add(m_menuItems.GetItem("Bezier").CreateMenuItem());
 			menu.DropDownItems.Add(m_menuItems.GetItem("Oval").CreateMenuItem());
 			menu.DropDownItems.Add(m_menuItems.GetItem("Rectangle").CreateMenuItem());
+			menu.DropDownItems.Add(m_menuItems.GetItem("MultiConnectionLines").CreateMenuItem());
             menu.DropDownItems.Add(m_menuItems.GetItem("Arc3P132").CreateMenuItem());
 			menu.DropDownItems.Add(m_menuItems.GetItem("Arc3P123").CreateMenuItem());
 		}

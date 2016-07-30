@@ -16,10 +16,12 @@ namespace Canvas
 		IModel DataModel { get; }
 		UnitPoint ScreenTopLeftToUnitPoint();
 		UnitPoint ScreenBottomRightToUnitPoint();
+        RectangleF ScreenPixelRectToUnitRect();
 		PointF ToScreen(UnitPoint unitpoint);
 		float ToScreen(double unitvalue);
 		double ToUnit(float screenvalue);
 		UnitPoint ToUnit(PointF screenpoint);
+        byte[,] PixelMatrix { get; }
 
 		void Invalidate();
 		IDrawObject CurrentObject { get; }
