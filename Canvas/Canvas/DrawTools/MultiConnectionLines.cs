@@ -136,10 +136,9 @@ namespace Canvas.DrawTools
         public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
         {
             m_startPt = point;
-            m_allPts = new List<UnitPoint>();
             Width = layer.Width;
             Color = layer.Color;
-            OnMouseDown(null, point, snap);
+            //OnMouseDown(null, point, snap);
             Selected = true;
         }
 
@@ -182,6 +181,8 @@ namespace Canvas.DrawTools
         {
             m_endPt = point;
             Selected = false;
+            if (m_allPts == null || m_allPts.Count < 2)
+                return eDrawObjectMouseDown.Cancel;
             return eDrawObjectMouseDown.Done;
         }
 
@@ -194,17 +195,10 @@ namespace Canvas.DrawTools
         {
             if (m_pathFinder == null)
             {
-                System.Diagnostics.Debug.Assert(canvas.PixelMatrix != null);
-                m_pathFinder = new AStartPathFinderWrapper(eAstartPathFinderType.PathFinderFast, canvas);
+                m_pathFinder = new AStartPathFinderWrapper(canvas);
             }
             m_pathFinder.StopFind();
             m_allPts= m_pathFinder.FindPath(m_startPt,m_endPt);
-            if(m_allPts==null)
-            {
-                int a = 0;
-            }
-         //   System.Diagnostics.Debug.Assert(m_allPts!=null);
-
         }
         public void OnMouseUp(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)
         {

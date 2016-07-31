@@ -115,23 +115,10 @@ namespace Canvas
 			m_canvas.DoInvalidate(false);
 		}
 
-        public RectangleF ScreenPixelRectToUnitRect()
-        {
-            return m_canvas.ScreenPixelRectToUnitRect();
-        }
-
         public IDrawObject CurrentObject
 		{
 			get { return m_canvas.NewObject; }
 		}
-
-        public byte[,] PixelMatrix
-        {
-            get
-            {
-                return m_canvas.PixelMatrix;
-            }
-        }
         #endregion
     }
 	public partial class CanvasCtrl : UserControl
@@ -188,11 +175,6 @@ namespace Canvas
 			get { return m_model; }
 			set { m_model = value; }
 		}
-        byte[,] m_pixelMatrix=null;
-        public byte[,] PixelMatrix
-        {
-            get { return m_pixelMatrix; }
-        }
         public CanvasCtrl(ICanvasOwner owner, IModel datamodel)
 		{
 			m_canvaswrapper = new CanvasWrapper(this);
@@ -503,6 +485,10 @@ namespace Canvas
 								break;
 							case eDrawObjectMouseDown.Continue:
 								break;
+                            case eDrawObjectMouseDown.Cancel:
+                                m_newObject = null;
+                                DoInvalidate(true);
+                                break;
 						}
 					}
 				}
@@ -738,50 +724,7 @@ namespace Canvas
 			DoInvalidate(true);
 			base.OnMouseWheel(e);
 		}
-        protected void UpdatePixelMatrix()
-        {
-             int nx = ClientRectangle.Width;
-            int ny = ClientRectangle.Height;
-            double logNx = Math.Log(nx, 2);
-           if ( logNx!=(int)logNx)
-            {
-                nx =(int) Math.Pow(2, (int)logNx + 1);
-            }
-            double logNy = Math.Log(ny, 2);
-            if(logNy!=(int)logNy)
-            {
-                ny = (int)Math.Pow(2,(int)logNy+1);
-            }
-            //for fast path finder, nx should be equal with ny
-            int maxVal = nx > ny ? nx : ny;
-            if (m_pixelMatrix == null)
-            {
-                m_pixelMatrix = new byte[maxVal, maxVal];
-            }
-            for (int ii = 0; ii < nx; ++ii)
-            {
-                for(int jj=0;jj<ny;++jj)
-                {//init
-                    m_pixelMatrix[ii, jj] = 1;
-                }
-            }
-
-           List<IDrawObject> allObjs= m_model.GetHitObjects(m_canvaswrapper, ScreenPixelRectToUnitRect(), false);
-            foreach(var obj in allObjs)
-            {
-                DrawTools.RectBase rectBase = obj as DrawTools.RectBase;
-                if (rectBase == null)
-                    continue;
-                Rectangle pixelRect = ScreenUtils.ConvertRect(ScreenUtils.ToScreen(m_canvaswrapper, rectBase.GetBoundingRect(m_canvaswrapper)));
-                for(int ii=pixelRect.Y;ii<pixelRect.Height+pixelRect.Y;++ii)
-                {
-                    for(int jj=pixelRect.X;jj<pixelRect.Width;++jj)
-                    {
-                        m_pixelMatrix[jj, ii] = 5;
-                    }
-                }
-            }
-        }
+  
 		protected override void OnResize(EventArgs e)
 		{
 			base.OnResize(e);
@@ -790,8 +733,6 @@ namespace Canvas
 				SetCenterScreen(ToScreen(m_lastCenterPoint), false);
 			m_lastCenterPoint = CenterPointUnit();
 			m_staticImage = null;
-            m_pixelMatrix = null;
-            UpdatePixelMatrix();
 			DoInvalidate(true);
 		}
 
@@ -827,13 +768,6 @@ namespace Canvas
 		{
 			return ToUnit(new PointF(ClientRectangle.Width, ClientRectangle.Height));
 		}
-        public RectangleF ScreenPixelRectToUnitRect()
-        {
-            UnitPoint bottomRightPos = ScreenBottomRightToUnitPoint();
-            double width = ToUnit(ClientRectangle.Width);
-            double height = ToUnit(ClientRectangle.Height);
-            return new RectangleF(bottomRightPos.Point.X,bottomRightPos.Point.Y,(float) width, (float)height);
-        }
         public PointF ToScreen(UnitPoint point)
 		{
 			PointF transformedPoint = Translate(point);

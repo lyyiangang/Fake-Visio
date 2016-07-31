@@ -1,4 +1,5 @@
 ﻿using AStartPathFindAlgorithms;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -14,17 +15,23 @@ namespace Canvas.AStartPathFindAlgorithms
         private IPathFinder _pathFinder = null;
         ICanvas _canvas = null;
         byte[,] m_pixelMatrix = null;
-        public AStartPathFinderWrapper(eAstartPathFinderType type,ICanvas canvas )
+        public AStartPathFinderWrapper(/*eAstartPathFinderType type,*/ICanvas canvas )
         {
-            if(type==eAstartPathFinderType.PathFinderFast)
-            {
-                _pathFinder = new PathFinderFast(canvas.PixelMatrix);
-            }
-            else if(type == eAstartPathFinderType.PathFinder)
-            {
-                _pathFinder = new PathFinder(canvas.PixelMatrix);
-            }
             _canvas = canvas;
+            Init();
+        }
+        void Init()
+        {
+            if (!InitPixelMatrix())
+                return;
+            //if (type == eAstartPathFinderType.PathFinderFast)
+            //{
+                _pathFinder = new PathFinderFast(m_pixelMatrix);
+            //}
+            //else if (type == eAstartPathFinderType.PathFinder)
+            //{
+            //  _pathFinder = new PathFinder(m_pixelMatrix);
+            //}
             _pathFinder.Formula = HeuristicFormula.Manhattan;
             _pathFinder.Diagonals = false;
             _pathFinder.HeavyDiagonals = false;
@@ -36,40 +43,20 @@ namespace Canvas.AStartPathFindAlgorithms
             _pathFinder.ReopenCloseNodes = false;
             _pathFinder.DebugFoundPath = true;
         }
-        //void InitPixelMatrix()
-        //{
-        //    int nx = _canvas.ClientRectangle.Width;
-        //    int ny = _canvas.ClientRectangle.Height;
-        //    if (m_pixelMatrix == null)
-        //        m_pixelMatrix = new byte[nx, ny];
-        //    for (int ii = 0; ii < nx; ++ii)
-        //    {
-        //        for (int jj = 0; jj < ny; ++jj)
-        //        {//init
-        //            m_pixelMatrix[ii, jj] = 1;
-        //        }
-        //    }
-
-        //    //List<IDrawObject> allObjs = _canvas.DataModel.GetHitObjects(_canvas.can, ScreenPixelRectToUnitRect(), false);
-        //    //foreach (var obj in allObjs)
-        //    //{
-        //    //    DrawTools.RectBase rectBase = obj as DrawTools.RectBase;
-        //    //    if (rectBase == null)
-        //    //        continue;
-        //    //    Rectangle pixelRect = ScreenUtils.ConvertRect(ScreenUtils.ToScreen(m_canvaswrapper, rectBase.GetBoundingRect(m_canvaswrapper)));
-        //    //    for (int ii = pixelRect.Y; ii < pixelRect.Height + pixelRect.Y; ++ii)
-        //    //    {
-        //    //        for (int jj = pixelRect.X; jj < pixelRect.Width; ++jj)
-        //    //        {
-        //    //            m_pixelMatrix[jj, ii] = 5;
-        //    //        }
-        //    //    }
-        //    //}
-        //}
         public List<UnitPoint> FindPath(UnitPoint startPt, UnitPoint endPt)
         {
+            if (_pathFinder == null)
+                return null;
+            if (NeedReconstructMatrix())
+            {
+                m_pixelMatrix = null;
+                Init();
+            }
             Point pStart = ScreenUtils.ConvertPoint(_canvas.ToScreen(startPt));
             Point pEnd = ScreenUtils.ConvertPoint(_canvas.ToScreen(endPt));
+            if (pStart == pEnd)
+                return null;
+            _pathFinder.FindPathStop();
             List<PathFinderNode> path = _pathFinder.FindPath(pStart, pEnd);
             if (path == null || path.Count < 1)
                 return null;
@@ -85,7 +72,94 @@ namespace Canvas.AStartPathFindAlgorithms
 
         public void StopFind()
         {
+            if (_pathFinder == null)
+                return;
             _pathFinder.FindPathStop();
+        }
+
+        RectangleF ScreenPixelRectToUnitRect()
+        {
+            UnitPoint bottomRightPos = _canvas.ScreenBottomRightToUnitPoint();
+            double width = _canvas.ToUnit(((CanvasWrapper)_canvas).CanvasCtrl.ClientRectangle.Width);
+            double height = _canvas.ToUnit(((CanvasWrapper)_canvas).CanvasCtrl.ClientRectangle.Height);
+            return new RectangleF(bottomRightPos.Point.X-(float)width, bottomRightPos.Point.Y, (float)width, (float)height);
+        }
+        bool NeedReconstructMatrix()
+        {
+            if (_canvas is CanvasWrapper)
+            {
+                int curSize= m_pixelMatrix.GetUpperBound(0)+1;
+                int newSize = GetPixelMatrixSize();
+                if (curSize == newSize)
+                    return false;
+                return true;
+            }
+            else
+            {
+                System.Diagnostics.Debug.Assert(false);
+            }
+            return true;
+        }
+        int GetPixelMatrixSize()
+        {
+            int nx = ((CanvasWrapper)_canvas).CanvasCtrl.ClientRectangle.Width;
+            int ny = ((CanvasWrapper)_canvas).CanvasCtrl.ClientRectangle.Height;
+            if (nx < 1 || ny < 1)
+                return 0;
+            double logNx = Math.Log(nx, 2);
+            if (logNx != (int)logNx)
+            {
+                nx = (int)Math.Pow(2, (int)logNx + 1);
+            }
+            double logNy = Math.Log(ny, 2);
+            if (logNy != (int)logNy)
+            {
+                ny = (int)Math.Pow(2, (int)logNy + 1);
+            }
+            //for fast path finder, nx should be equal with ny
+            int maxVal = nx > ny ? nx : ny;
+            return maxVal;
+        }
+        bool InitPixelMatrix()
+        {
+            if (_canvas is CanvasWrapper)
+            {
+                int matrixSize = GetPixelMatrixSize();
+                if (matrixSize < 1)
+                    return false;
+                if (m_pixelMatrix == null)
+                {
+                    m_pixelMatrix = new byte[matrixSize, matrixSize];
+                }
+                for (int ii = 0; ii < matrixSize; ++ii)
+                {
+                    for (int jj = 0; jj < matrixSize; ++jj)
+                    {//init
+                        m_pixelMatrix[ii, jj] = 1;
+                    }
+                }
+                List<IDrawObject> allObjs = _canvas.DataModel.GetHitObjects(_canvas, ScreenPixelRectToUnitRect(), false);
+                foreach (var obj in allObjs)
+                {
+                    DrawTools.RectBase rectBase = obj as DrawTools.RectBase;
+                    if (rectBase == null)
+                        continue;
+                    Rectangle pixelRect = ScreenUtils.ConvertRect(ScreenUtils.ToScreenNormalized(_canvas, rectBase.GetBoundingRect(_canvas)));
+                    for (int ii = pixelRect.Y; ii < pixelRect.Height + pixelRect.Y; ++ii)
+                    {
+                        for (int jj = pixelRect.X; jj < pixelRect.Width+pixelRect.X; ++jj)
+                        {
+                            m_pixelMatrix[jj, ii] = 0;
+                        }
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                System.Diagnostics.Debug.Assert(false);
+                return false;
+            }
         }
 
         List<PathFinderNode> ExtractConnerNodes(List<PathFinderNode> originalPathNodes)
