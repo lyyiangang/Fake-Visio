@@ -1,0 +1,17 @@
+E:\all-projects\FakeVisio\Canvas\Canvas\bin\Debug\Canvas.exe.config
+E:\all-projects\FakeVisio\Canvas\Canvas\bin\Debug\Canvas.exe
+E:\all-projects\FakeVisio\Canvas\Canvas\bin\Debug\Canvas.pdb
+E:\all-projects\FakeVisio\Canvas\Canvas\bin\Debug\CommonTools.dll
+E:\all-projects\FakeVisio\Canvas\Canvas\bin\Debug\CommonTools.pdb
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.csprojResolveAssemblyReference.cache
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.Properties.Resources.resources
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.CanvasCtrl.resources
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.DocumentForm.resources
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.MainWin.resources
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.About.resources
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.Options.GridPage.resources
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.Options.LayersPage.resources
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.Options.OptionsDlg.resources
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.csproj.GenerateResource.Cache
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.exe
+E:\all-projects\FakeVisio\Canvas\Canvas\obj\Debug\Canvas.pdb

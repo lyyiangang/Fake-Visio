@@ -95,7 +95,7 @@ namespace Canvas.DrawTools
 
         public void Draw(ICanvas canvas, RectangleF unitrect)
         {
-            if (m_allPts.Count < 2)
+            if (m_allPts==null || m_allPts.Count < 2)
                 return;
             Color color = Color;
             Pen pen = canvas.CreatePen(color, Width);
@@ -203,7 +203,7 @@ namespace Canvas.DrawTools
             {
                 int a = 0;
             }
-            System.Diagnostics.Debug.Assert(m_allPts!=null);
+         //   System.Diagnostics.Debug.Assert(m_allPts!=null);
 
         }
         public void OnMouseUp(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)

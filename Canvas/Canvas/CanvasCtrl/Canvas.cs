@@ -742,8 +742,22 @@ namespace Canvas
         {
              int nx = ClientRectangle.Width;
             int ny = ClientRectangle.Height;
-            if(m_pixelMatrix==null)
-                m_pixelMatrix = new byte[nx,ny];
+            double logNx = Math.Log(nx, 2);
+           if ( logNx!=(int)logNx)
+            {
+                nx =(int) Math.Pow(2, (int)logNx + 1);
+            }
+            double logNy = Math.Log(ny, 2);
+            if(logNy!=(int)logNy)
+            {
+                ny = (int)Math.Pow(2,(int)logNy+1);
+            }
+            //for fast path finder, nx should be equal with ny
+            int maxVal = nx > ny ? nx : ny;
+            if (m_pixelMatrix == null)
+            {
+                m_pixelMatrix = new byte[maxVal, maxVal];
+            }
             for (int ii = 0; ii < nx; ++ii)
             {
                 for(int jj=0;jj<ny;++jj)
