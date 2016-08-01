@@ -132,7 +132,6 @@ namespace Canvas.DrawTools
 			Width = layer.Width;
 			Color = layer.Color;
 			Selected = true;
-
 		}
 
 		static int ThresholdPixel = 6;

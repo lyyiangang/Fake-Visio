@@ -13,7 +13,7 @@ namespace Canvas.DrawTools
     {
         protected AStartPathFinderWrapper m_pathFinder = null;
         protected List<UnitPoint> m_allPts;
-		protected static int ThresholdPixel = 6;
+		protected static int ThresholdPixel = 1;
         UnitPoint m_startPt, m_endPt;
         public string Id
         {
@@ -95,26 +95,26 @@ namespace Canvas.DrawTools
 
         public void Draw(ICanvas canvas, RectangleF unitrect)
         {
-            if (m_allPts.Count < 2)
+            if (m_allPts==null || m_allPts.Count < 2)
                 return;
             Color color = Color;
             Pen pen = canvas.CreatePen(color, Width);
             pen.EndCap = LineCap.Round;
             pen.StartCap = LineCap.Round;
-            //canvas.DrawLine(canvas, pen, m_startPt, m_endPt);
-            //if (Highlighted)
-            //    canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_startPt, m_endPt);
-            //if (Selected)
-            //{
-            //    canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_startPt, m_endPt);
-            //    if (!m_startPt.IsEmpty )
-            //        DrawUtils.DrawNode(canvas, m_startPt);
-            //    if (!m_startPt.IsEmpty )
-            //        DrawUtils.DrawNode(canvas, m_endPt);
-            //}
             for(int ii=0;ii< m_allPts.Count-1;++ii)
             {
                 canvas.DrawLine(canvas, pen, m_allPts[ii], m_allPts[ii + 1]);
+            }
+            if(Selected)
+            {
+                for (int ii = 0; ii < m_allPts.Count - 1; ++ii)
+                {
+                    canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_allPts[ii], m_allPts[ii + 1]);
+                }
+                if (!m_startPt.IsEmpty)
+                    DrawUtils.DrawNode(canvas, m_startPt);
+                if (!m_endPt.IsEmpty)
+                    DrawUtils.DrawNode(canvas, m_endPt);
             }
         }
 
@@ -136,10 +136,9 @@ namespace Canvas.DrawTools
         public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
         {
             m_startPt = point;
-            m_allPts = new List<UnitPoint>();
             Width = layer.Width;
             Color = layer.Color;
-            OnMouseDown(null, point, snap);
+            //OnMouseDown(null, point, snap);
             Selected = true;
         }
 
@@ -163,7 +162,7 @@ namespace Canvas.DrawTools
                 return false;
             RectangleF boundingrect = GetBoundingRect(canvas);
             if (anyPoint)
-                return HitUtil.LineIntersectWithRect(m_allPts.Last(), m_allPts.First(), rect);
+                return HitUtil.LineIntersectWithRect(m_startPt, m_endPt, rect);
             System.Diagnostics.Debug.Assert(m_allPts.Count > 1);
             for (int ii = 0; ii < m_allPts.Count-1; ++ii)
             {
@@ -180,8 +179,10 @@ namespace Canvas.DrawTools
 
         public eDrawObjectMouseDown OnMouseDown(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)
         {
-            Selected = false;
             m_endPt = point;
+            Selected = false;
+            if (m_allPts == null || m_allPts.Count < 2)
+                return eDrawObjectMouseDown.Cancel;
             return eDrawObjectMouseDown.Done;
         }
 
@@ -194,12 +195,10 @@ namespace Canvas.DrawTools
         {
             if (m_pathFinder == null)
             {
-                System.Diagnostics.Debug.Assert(canvas.PixelMatrix != null);
-                m_pathFinder = new AStartPathFinderWrapper(eAstartPathFinderType.PathFinder, canvas.PixelMatrix);
+                m_pathFinder = new AStartPathFinderWrapper(canvas);
             }
-            Point pStart = ScreenUtils.ConvertPoint(canvas.ToScreen(m_startPt));
-            Point pEnd = ScreenUtils.ConvertPoint(canvas.ToScreen(m_endPt));
-            m_allPts= m_pathFinder.FindPath(pStart, pEnd,canvas);
+            m_pathFinder.StopFind();
+            m_allPts= m_pathFinder.FindPath(m_startPt,m_endPt);
         }
         public void OnMouseUp(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)
         {

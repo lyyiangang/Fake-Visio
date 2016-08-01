@@ -16,12 +16,10 @@ namespace Canvas
 		IModel DataModel { get; }
 		UnitPoint ScreenTopLeftToUnitPoint();
 		UnitPoint ScreenBottomRightToUnitPoint();
-        RectangleF ScreenPixelRectToUnitRect();
 		PointF ToScreen(UnitPoint unitpoint);
 		float ToScreen(double unitvalue);
 		double ToUnit(float screenvalue);
 		UnitPoint ToUnit(PointF screenpoint);
-        byte[,] PixelMatrix { get; }
 
 		void Invalidate();
 		IDrawObject CurrentObject { get; }
@@ -93,6 +91,7 @@ namespace Canvas
 		Done,		// this draw object is complete
 		DoneRepeat,	// this object is complete, but create new object of same type
 		Continue,	// this object requires additional mouse inputs
+        Cancel,// if we can't create an obj, then return this flag
 	}
 	public interface INodePoint
 	{
