@@ -15,6 +15,7 @@ namespace Canvas.AStartPathFindAlgorithms
         private IPathFinder _pathFinder = null;
         ICanvas _canvas = null;
         byte[,] m_pixelMatrix = null;
+        RectangleF _boundingBox = RectangleF.Empty;
         public AStartPathFinderWrapper(/*eAstartPathFinderType type,*/ICanvas canvas )
         {
             _canvas = canvas;
@@ -62,11 +63,36 @@ namespace Canvas.AStartPathFindAlgorithms
                 return null;
             List<PathFinderNode> cornerNodesPath= ExtractConnerNodes(path);
             List<UnitPoint> allPts = new List<UnitPoint>();
-            foreach(var tmpNode in cornerNodesPath)
+
+            PointF ptLeftBottom = PointF.Empty;
+            PointF ptRightTop = PointF.Empty;
+            foreach (var tmpNode in cornerNodesPath)
             {
                 PointF pt = new PointF(tmpNode.X, tmpNode.Y);
-                allPts.Add(_canvas.ToUnit(pt));
+                UnitPoint convertedPt = _canvas.ToUnit(pt);
+                allPts.Add(convertedPt);
+                //get bounding box
+                if (ptLeftBottom == PointF.Empty)
+                {
+                    ptLeftBottom.X = (float)convertedPt.X;
+                    ptLeftBottom.Y = (float)convertedPt.Y;
+                    ptRightTop.X = (float)convertedPt.X;
+                    ptRightTop.Y = (float)convertedPt.Y;
+                }
+                else
+                {
+                    if (convertedPt.X < ptLeftBottom.X)
+                        ptLeftBottom.X = pt.X;
+                    if (convertedPt.Y < ptLeftBottom.Y)
+                        ptLeftBottom.Y = pt.Y;
+                    if (convertedPt.X > ptRightTop.X)
+                        ptRightTop.X = pt.X;
+                    if (convertedPt.Y > ptRightTop.Y)
+                        ptRightTop.Y = pt.Y;
+                }
             }
+            _boundingBox = new RectangleF(ptLeftBottom,
+                new SizeF(ptRightTop.X - ptLeftBottom.X, ptRightTop.Y - ptLeftBottom.Y));
             return allPts;
         }
 
@@ -76,7 +102,10 @@ namespace Canvas.AStartPathFindAlgorithms
                 return;
             _pathFinder.FindPathStop();
         }
-
+        public RectangleF BoundingBox
+        {
+            get { return _boundingBox; }
+        }
         RectangleF ScreenPixelRectToUnitRect()
         {
             UnitPoint bottomRightPos = _canvas.ScreenBottomRightToUnitPoint();
@@ -178,6 +207,13 @@ namespace Canvas.AStartPathFindAlgorithms
             }
             cornnerNodes.Add(originalPathNodes[originalPathNodes.Count - 1]);
             return cornnerNodes;
+        }
+        List<PathFinderNode> SnapToStartEndNodes(List<PathFinderNode> allNodes)
+        {
+            //the first and last node don't equal the real start and end points.
+            //we need to snap them here.
+            System.Diagnostics.Debug.Assert(allNodes.Count >= 2);
+            return null;
         }
     }
 }
