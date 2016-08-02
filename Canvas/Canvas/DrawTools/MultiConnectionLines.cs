@@ -123,7 +123,6 @@ namespace Canvas.DrawTools
             if (m_pathFinder == null)
                 return RectangleF.Empty;
             float thWidth =Line.ThresholdWidth(canvas, Width,ThresholdPixel);
-            //return ScreenUtils.GetRect(m_startPt, m_endPt, thWidth);
             RectangleF rect = m_pathFinder.BoundingBox;
             rect.Inflate(thWidth,thWidth);
             return m_pathFinder.BoundingBox;
@@ -143,7 +142,6 @@ namespace Canvas.DrawTools
             m_startPt = point;
             Width = layer.Width;
             Color = layer.Color;
-            //OnMouseDown(null, point, snap);
             Selected = true;
         }
 

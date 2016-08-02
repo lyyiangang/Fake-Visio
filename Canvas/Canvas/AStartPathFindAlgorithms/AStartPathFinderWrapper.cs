@@ -82,18 +82,19 @@ namespace Canvas.AStartPathFindAlgorithms
                 else
                 {
                     if (convertedPt.X < ptLeftBottom.X)
-                        ptLeftBottom.X = pt.X;
+                        ptLeftBottom.X =(float) convertedPt.X;
                     if (convertedPt.Y < ptLeftBottom.Y)
-                        ptLeftBottom.Y = pt.Y;
+                        ptLeftBottom.Y = (float)convertedPt.Y;
                     if (convertedPt.X > ptRightTop.X)
-                        ptRightTop.X = pt.X;
+                        ptRightTop.X = (float)convertedPt.X;
                     if (convertedPt.Y > ptRightTop.Y)
-                        ptRightTop.Y = pt.Y;
+                        ptRightTop.Y = (float)convertedPt.Y;
                 }
             }
             _boundingBox = new RectangleF(ptLeftBottom,
                 new SizeF(ptRightTop.X - ptLeftBottom.X, ptRightTop.Y - ptLeftBottom.Y));
-            return allPts;
+            List<UnitPoint> snapedPts = SnapToStartEndNodes(allPts, startPt, endPt);
+            return snapedPts;
         }
 
         public void StopFind()
@@ -102,10 +103,12 @@ namespace Canvas.AStartPathFindAlgorithms
                 return;
             _pathFinder.FindPathStop();
         }
+
         public RectangleF BoundingBox
         {
             get { return _boundingBox; }
         }
+
         RectangleF ScreenPixelRectToUnitRect()
         {
             UnitPoint bottomRightPos = _canvas.ScreenBottomRightToUnitPoint();
@@ -113,6 +116,7 @@ namespace Canvas.AStartPathFindAlgorithms
             double height = _canvas.ToUnit(((CanvasWrapper)_canvas).CanvasCtrl.ClientRectangle.Height);
             return new RectangleF(bottomRightPos.Point.X-(float)width, bottomRightPos.Point.Y, (float)width, (float)height);
         }
+
         bool NeedReconstructMatrix()
         {
             if (_canvas is CanvasWrapper)
@@ -129,6 +133,7 @@ namespace Canvas.AStartPathFindAlgorithms
             }
             return true;
         }
+
         int GetPixelMatrixSize()
         {
             int nx = ((CanvasWrapper)_canvas).CanvasCtrl.ClientRectangle.Width;
@@ -149,6 +154,7 @@ namespace Canvas.AStartPathFindAlgorithms
             int maxVal = nx > ny ? nx : ny;
             return maxVal;
         }
+
         bool InitPixelMatrix()
         {
             if (_canvas is CanvasWrapper)
@@ -208,12 +214,52 @@ namespace Canvas.AStartPathFindAlgorithms
             cornnerNodes.Add(originalPathNodes[originalPathNodes.Count - 1]);
             return cornnerNodes;
         }
-        List<PathFinderNode> SnapToStartEndNodes(List<PathFinderNode> allNodes)
+
+        List<UnitPoint> SnapToStartEndNodes(List<UnitPoint> allNodes,UnitPoint startPt,UnitPoint endPt)
         {
             //the first and last node don't equal the real start and end points.
             //we need to snap them here.
             System.Diagnostics.Debug.Assert(allNodes.Count >= 2);
-            return null;
+            List<UnitPoint> modifiedNodes = new List<UnitPoint>();
+            modifiedNodes.InsertRange(0,allNodes);
+            if(allNodes.Count==2)
+            {
+                modifiedNodes[0] = startPt;
+                modifiedNodes[1] = endPt;
+                return modifiedNodes;
+            }
+
+                modifiedNodes[0] = startPt;
+            //snap to start point
+            UnitPoint tmpPoint = new UnitPoint();
+            if (modifiedNodes[1].X == modifiedNodes[2].X)//constrain x
+            {
+                tmpPoint.X = modifiedNodes[1].X;
+                tmpPoint.Y = startPt.Y;
+                modifiedNodes[1] = tmpPoint;
+            }
+            else if (modifiedNodes[1].Y==modifiedNodes[2].Y)//constrain y
+            {
+                tmpPoint.X = startPt.X;
+                tmpPoint.Y = modifiedNodes[1].Y;
+                modifiedNodes[1] = tmpPoint;
+            }
+            //snap to end point
+            int lastItemIndex = allNodes.Count - 1;
+            modifiedNodes[lastItemIndex] = endPt;
+            if(modifiedNodes[lastItemIndex-1].X==modifiedNodes[lastItemIndex-2].X)
+            {
+                tmpPoint.X = modifiedNodes[lastItemIndex - 1].X;
+                tmpPoint.Y = endPt.Y;
+                modifiedNodes[lastItemIndex-1] = tmpPoint;
+            }
+            else if (modifiedNodes[lastItemIndex-1].Y==modifiedNodes[lastItemIndex-2].Y)
+            {
+                tmpPoint.X = endPt.X;
+                tmpPoint.Y = modifiedNodes[lastItemIndex - 1].Y;
+                modifiedNodes[lastItemIndex - 1] = tmpPoint;
+            }
+            return modifiedNodes;
         }
     }
 }
