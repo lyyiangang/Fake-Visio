@@ -120,8 +120,13 @@ namespace Canvas.DrawTools
 
         public RectangleF GetBoundingRect(ICanvas canvas)
         {
+            if (m_pathFinder == null)
+                return RectangleF.Empty;
             float thWidth =Line.ThresholdWidth(canvas, Width,ThresholdPixel);
-            return ScreenUtils.GetRect(m_startPt, m_endPt, thWidth);
+            //return ScreenUtils.GetRect(m_startPt, m_endPt, thWidth);
+            RectangleF rect = m_pathFinder.BoundingBox;
+            rect.Inflate(thWidth,thWidth);
+            return m_pathFinder.BoundingBox;
         }
 
         public string GetInfoAsString()
