@@ -97,8 +97,7 @@ namespace Canvas.DrawTools
         {
             if (m_allPts==null || m_allPts.Count < 2)
                 return;
-            Color color = Color;
-            Pen pen = canvas.CreatePen(color, Width);
+            Pen pen = canvas.CreatePen(Color, Width);
             pen.EndCap = LineCap.Round;
             pen.StartCap = LineCap.Round;
             for(int ii=0;ii< m_allPts.Count-1;++ii)
