@@ -139,6 +139,7 @@ namespace Canvas.DrawTools
         public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
         {
             m_startPt = point;
+            m_endPt = point;
             Width = layer.Width;
             Color = layer.Color;
             Selected = true;
@@ -181,6 +182,7 @@ namespace Canvas.DrawTools
 
         public eDrawObjectMouseDown OnMouseDown(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)
         {
+            UpdatePath(canvas);
             m_endPt = point;
             Selected = false;
             if (m_allPts == null || m_allPts.Count < 2)
@@ -193,7 +195,7 @@ namespace Canvas.DrawTools
             m_endPt = point;
             UpdatePath(canvas);
         }
-        void UpdatePath(ICanvas canvas)
+        void UpdatePath(ICanvas canvas, bool passEndPoint = false)
         {
             if (m_pathFinder == null)
             {

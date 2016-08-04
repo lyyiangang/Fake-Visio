@@ -44,10 +44,11 @@ namespace Canvas.AStartPathFindAlgorithms
             _pathFinder.ReopenCloseNodes = false;
             _pathFinder.DebugFoundPath = true;
         }
-        public List<UnitPoint> FindPath(UnitPoint startPt, UnitPoint endPt)
+        public List<UnitPoint> FindPath(UnitPoint startPt, UnitPoint endPt, bool passEndPoint=false)
         {
             if (_pathFinder == null)
                 return null;
+            //if the canvas control size has changed, we need to update the matrix
             if (NeedReconstructMatrix())
             {
                 m_pixelMatrix = null;
@@ -58,6 +59,8 @@ namespace Canvas.AStartPathFindAlgorithms
             if (pStart == pEnd)
                 return null;
             _pathFinder.FindPathStop();
+            //if (passEndPoint)
+            //    m_pixelMatrix[pEnd.X, pEnd.Y] = 1;
             List<PathFinderNode> path = _pathFinder.FindPath(pStart, pEnd);
             if (path == null || path.Count < 1)
                 return null;
@@ -170,7 +173,7 @@ namespace Canvas.AStartPathFindAlgorithms
                 {
                     for (int jj = 0; jj < matrixSize; ++jj)
                     {//init
-                        m_pixelMatrix[ii, jj] = 1;
+                        m_pixelMatrix[ii, jj] = 1;//the path can pass through these point
                     }
                 }
                 List<IDrawObject> allObjs = _canvas.DataModel.GetHitObjects(_canvas, ScreenPixelRectToUnitRect(), false);
@@ -180,11 +183,12 @@ namespace Canvas.AStartPathFindAlgorithms
                     if (rectBase == null)
                         continue;
                     Rectangle pixelRect = ScreenUtils.ConvertRect(ScreenUtils.ToScreenNormalized(_canvas, rectBase.GetBoundingRect(_canvas)));
+                    //pixelRect.Inflate(-1, -1);
                     for (int ii = pixelRect.Y; ii < pixelRect.Height + pixelRect.Y; ++ii)
                     {
                         for (int jj = pixelRect.X; jj < pixelRect.Width+pixelRect.X; ++jj)
                         {
-                            m_pixelMatrix[jj, ii] = 0;
+                            m_pixelMatrix[jj, ii] = 0;//the path should pass throught these point
                         }
                     }
                 }
@@ -229,7 +233,12 @@ namespace Canvas.AStartPathFindAlgorithms
                 return modifiedNodes;
             }
 
-                modifiedNodes[0] = startPt;
+            bool plot = false;
+            if(plot)
+            {
+                DebugUtls.DrawPoints(_canvas, allNodes);
+            }
+            modifiedNodes[0] = startPt;
             //snap to start point
             UnitPoint tmpPoint = new UnitPoint();
             if (modifiedNodes[1].X == modifiedNodes[2].X)//constrain x

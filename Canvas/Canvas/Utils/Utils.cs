@@ -896,4 +896,15 @@ namespace Canvas
 		}
 
 	}
+
+    public class DebugUtls
+    {
+       static public void DrawPoints(ICanvas canvas, List<UnitPoint> pts)
+        {
+            foreach (var pt in pts)
+            {
+                System.Diagnostics.Debug.Assert(false);
+            }
+        }
+    }
 }

@@ -76,11 +76,11 @@ namespace Canvas
 		{
 			return m_canvas.CreatePen(color, unitWidth);
 		}
-		public void DrawLine(ICanvas canvas, Pen pen, UnitPoint p1, UnitPoint p2)
-		{
-			m_canvas.DrawLine(canvas, pen, p1, p2);
-		}
-		public void DrawArc(ICanvas canvas, Pen pen, UnitPoint center, float radius, float beginangle, float angle)
+        public void DrawLine(ICanvas canvas, Pen pen, UnitPoint p1, UnitPoint p2)
+        {
+            m_canvas.DrawLine(canvas, pen, p1, p2);
+        }
+        public void DrawArc(ICanvas canvas, Pen pen, UnitPoint center, float radius, float beginangle, float angle)
 		{
 			m_canvas.DrawArc(canvas, pen, center, radius, beginangle, angle);
 		}
@@ -88,7 +88,6 @@ namespace Canvas
         {
             m_canvas.DrawBezier(canvas, pen, p1, p2, p3, p4);
         }
-
         public void DrawRectangle(ICanvas canvas, Pen pen, UnitPoint ptTopLeft, float width, float height)
         {
             m_canvas.DrawRectangle(canvas, pen, ptTopLeft, width, height);
@@ -785,7 +784,7 @@ namespace Canvas
 		}
 		public double ToUnit(float screenvalue)
 		{
-			return (double)screenvalue / (double)(m_screenResolution * m_model.Zoom);
+			return screenvalue / (double)(m_screenResolution * m_model.Zoom);
 		}
 		public UnitPoint ToUnit(PointF screenpoint)
 		{
@@ -799,7 +798,7 @@ namespace Canvas
 		{
 			return GetPen(color, ToScreen(unitWidth));
 		}
-		public void DrawLine(ICanvas canvas, Pen pen, UnitPoint p1, UnitPoint p2)
+        public void DrawLine(ICanvas canvas, Pen pen, UnitPoint p1, UnitPoint p2)
 		{
 			PointF tmpp1 = ToScreen(p1);
 			PointF tmpp2 = ToScreen(p2);

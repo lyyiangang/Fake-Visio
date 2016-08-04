@@ -27,6 +27,7 @@ namespace Canvas
 		Rectangle ClientRectangle { get; }
 		Graphics Graphics { get; }
 		Pen CreatePen(Color color, float unitWidth);
+
 		void DrawLine(ICanvas canvas, Pen pen, UnitPoint p1, UnitPoint p2);
 		void DrawArc(ICanvas canvas, Pen pen, UnitPoint center, float radius, float beginangle, float angle);
         void DrawBezier(ICanvas canvas, Pen pen, UnitPoint p1, UnitPoint p2, UnitPoint p3, UnitPoint p4);
