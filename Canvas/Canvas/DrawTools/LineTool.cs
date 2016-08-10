@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -8,7 +7,7 @@ using System.Xml;
 
 namespace Canvas.DrawTools
 {
-	class NodePointLine : INodePoint
+    class NodePointLine : INodePoint
 	{
 		public enum ePoint
 		{
@@ -354,7 +353,12 @@ namespace Canvas.DrawTools
 			else
 				P2 = newlinepoint;
 		}
-	}
+
+        public RectangleF GetExactBoundingRect(ICanvas canvas)
+        {
+            throw new NotImplementedException();
+        }
+    }
 	class LineEdit : Line, IObjectEditInstance
 	{
 		protected PerpendicularSnapPoint m_perSnap;

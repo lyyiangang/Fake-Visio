@@ -5,18 +5,18 @@ using System.Drawing;
 
 namespace Canvas.AStartPathFindAlgorithms
 {
-    public enum eAstartPathFinderType
-    {
-        PathFinderFast,
-        PathFinder,
-    };
+    //public enum eAstartPathFinderType
+    //{
+    //    PathFinderFast,
+    //    PathFinder,
+    //};
     class AStartPathFinderWrapper
     {
         private IPathFinder _pathFinder = null;
         ICanvas _canvas = null;
         byte[,] m_pixelMatrix = null;
         RectangleF _boundingBox = RectangleF.Empty;
-        public AStartPathFinderWrapper(/*eAstartPathFinderType type,*/ICanvas canvas )
+        public AStartPathFinderWrapper(ICanvas canvas )
         {
             _canvas = canvas;
             Init();
@@ -48,7 +48,7 @@ namespace Canvas.AStartPathFindAlgorithms
         {
             if (_pathFinder == null)
                 return null;
-            //if the canvas control size has changed, we need to update the matrix
+            //if the canvas control'size has changed, we need to update the matrix
             if (NeedReconstructMatrix())
             {
                 m_pixelMatrix = null;
@@ -58,6 +58,45 @@ namespace Canvas.AStartPathFindAlgorithms
             Point pEnd = ScreenUtils.ConvertPoint(_canvas.ToScreen(endPt));
             if (pStart == pEnd)
                 return null;
+            //-----------------------------------------------------------------------
+            #region debug
+            bool export= false;
+            if (export)
+            {
+                int nItems = m_pixelMatrix.GetUpperBound(0)+1;
+                int maxX = -1, maxY = -1, minX = 100000, minY = 100000;
+                for(int ii=0;ii<nItems;++ii)//row
+                {
+                    for(int jj=0;jj<nItems;++jj)//column
+                    {
+                        int val = m_pixelMatrix[ii, jj];
+                        if (val != 0)
+                            continue;
+                        if (jj < minX)
+                            minX = jj;
+                        if (jj > maxX)
+                            maxX = jj;
+                        if (ii < minY)
+                            minY = ii;
+                        if (ii > maxY)
+                            maxY = ii;
+                    }
+                }
+
+
+                for (int ii = 0; ii < nItems; ++ii)
+                {
+                    for (int jj = 0; jj < nItems; ++jj)
+                    {
+                        int val = m_pixelMatrix[ii, jj];
+                        Console.Write("{0},", val);
+                    }
+                    Console.Write("\n");
+                }
+            }
+            #endregion
+            //-----------------------------------------------------------------------
+
             _pathFinder.FindPathStop();
             //if (passEndPoint)
             //    m_pixelMatrix[pEnd.X, pEnd.Y] = 1;
@@ -182,7 +221,7 @@ namespace Canvas.AStartPathFindAlgorithms
                     DrawTools.RectBase rectBase = obj as DrawTools.RectBase;
                     if (rectBase == null)
                         continue;
-                    Rectangle pixelRect = ScreenUtils.ConvertRect(ScreenUtils.ToScreenNormalized(_canvas, rectBase.GetBoundingRect(_canvas)));
+                    Rectangle pixelRect = ScreenUtils.ConvertRect(ScreenUtils.ToScreenNormalized(_canvas, rectBase.GetExactBoundingRect(_canvas)));
                     //pixelRect.Inflate(-1, -1);
                     for (int ii = pixelRect.Y; ii < pixelRect.Height + pixelRect.Y; ++ii)
                     {

@@ -712,9 +712,14 @@ namespace Canvas.DrawTools
 		{
 			UpdateArcFrom3Points();
 		}
-		#endregion
 
-		protected static int ThresholdPixel = 6;
+        public RectangleF GetExactBoundingRect(ICanvas canvas)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        protected static int ThresholdPixel = 6;
 		public enum eCurrentPoint
 		{
 			p1,

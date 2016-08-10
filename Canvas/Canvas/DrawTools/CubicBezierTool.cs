@@ -376,5 +376,10 @@ namespace Canvas.DrawTools
             m_center.X = midPt[0];
             m_center.Y = midPt[1];
         }
+
+        public RectangleF GetExactBoundingRect(ICanvas canvas)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

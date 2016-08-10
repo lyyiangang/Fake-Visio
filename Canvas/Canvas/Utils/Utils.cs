@@ -142,7 +142,7 @@ namespace Canvas
 			double y = Math.Min(p1.Y, p2.Y);
 			double w = Math.Abs(p1.X - p2.X);
 			double h = Math.Abs(p1.Y - p2.Y);
-			RectangleF rect = ScreenUtils.GetRect(x, y, w, h);
+			RectangleF rect = GetRect(x, y, w, h);
 			rect.Inflate((float)width, (float)width);
 			return rect;
 		}

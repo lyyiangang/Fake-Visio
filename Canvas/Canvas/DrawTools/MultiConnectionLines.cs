@@ -224,5 +224,10 @@ namespace Canvas.DrawTools
         {
             return null;
         }
+
+        public RectangleF GetExactBoundingRect(ICanvas canvas)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

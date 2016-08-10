@@ -660,7 +660,13 @@ namespace Canvas.DrawTools
 		{
 			return HitUtil.PointOncircle(m_center, m_radius, HitUtil.DegressToRadians(angle));
 		}
-		protected UnitPoint RadiusPoint
+
+        public RectangleF GetExactBoundingRect(ICanvas canvas)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected UnitPoint RadiusPoint
 		{
 			get
 			{

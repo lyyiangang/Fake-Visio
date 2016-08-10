@@ -90,10 +90,8 @@ namespace CommonTools
 		public NameObjectBinder(string propertyName, object dataSource, string dataMember) : base(propertyName, dataSource, dataMember)
 		{
 		}
-		int cnt = 0;
 		protected override void OnFormat(ConvertEventArgs cevent)
 		{
-			cnt = 0;
 			base.OnFormat(cevent);
 		}
 		protected override void OnParse(ConvertEventArgs cevent)

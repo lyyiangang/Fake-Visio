@@ -403,5 +403,11 @@ namespace Canvas.DrawTools
             return "";
         }
 
+        public RectangleF GetExactBoundingRect(ICanvas canvas)
+        {
+            return ScreenUtils.GetRect(m_p1, m_p3, 0);
+        }
+
+
     }
 }
