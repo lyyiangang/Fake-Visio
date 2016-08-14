@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 
 namespace Canvas.AStartPathFindAlgorithms
 {
@@ -36,17 +37,30 @@ namespace Canvas.AStartPathFindAlgorithms
             _pathFinder.Formula = HeuristicFormula.Manhattan;
             _pathFinder.Diagonals = false;
             _pathFinder.HeavyDiagonals = false;
-            _pathFinder.HeuristicEstimate = 2;
-            _pathFinder.PunishChangeDirection = true;
-            _pathFinder.TieBreaker = false;
-            _pathFinder.SearchLimit = 50000;
+            _pathFinder.HeuristicEstimate = 4;
+            _pathFinder.PunishChangeDirection = true;//only four direction is admitted
+            _pathFinder.TieBreaker = true;
+            _pathFinder.SearchLimit = 5000000;//important parm
             _pathFinder.DebugProgress = false;
             _pathFinder.ReopenCloseNodes = false;
             _pathFinder.DebugFoundPath = true;
         }
+        bool EndPointIsValid(Point endPt)
+        {
+            if (endPt.IsEmpty)
+                return false;
+
+            if (endPt.X < 0 || endPt.X > m_pixelMatrix.GetUpperBound(0) || m_pixelMatrix[endPt.X, endPt.Y] == 0)
+                return false;
+            return true;
+        }
         public List<UnitPoint> FindPath(UnitPoint startPt, UnitPoint endPt, bool passEndPoint=false)
         {
             if (_pathFinder == null)
+                return null;
+            Point pStart = ScreenUtils.ConvertPoint(_canvas.ToScreen(startPt));
+            Point pEnd = ScreenUtils.ConvertPoint(_canvas.ToScreen(endPt));
+            if (pStart == pEnd || !EndPointIsValid(pStart) || !EndPointIsValid(pEnd))
                 return null;
             //if the canvas control'size has changed, we need to update the matrix
             if (NeedReconstructMatrix())
@@ -54,10 +68,6 @@ namespace Canvas.AStartPathFindAlgorithms
                 m_pixelMatrix = null;
                 Init();
             }
-            Point pStart = ScreenUtils.ConvertPoint(_canvas.ToScreen(startPt));
-            Point pEnd = ScreenUtils.ConvertPoint(_canvas.ToScreen(endPt));
-            if (pStart == pEnd)
-                return null;
             //-----------------------------------------------------------------------
             #region debug
             bool export= false;
@@ -69,7 +79,7 @@ namespace Canvas.AStartPathFindAlgorithms
                 {
                     for(int jj=0;jj<nItems;++jj)//column
                     {
-                        int val = m_pixelMatrix[ii, jj];
+                        int val = m_pixelMatrix[jj,ii];
                         if (val != 0)
                             continue;
                         if (jj < minX)
@@ -82,13 +92,16 @@ namespace Canvas.AStartPathFindAlgorithms
                             maxY = ii;
                     }
                 }
-
+                PointF tmpPt = new PointF(minX, minY);
+                UnitPoint pt1 = _canvas.ToUnit(tmpPt);
+                tmpPt = new PointF(maxX, maxY);
+                UnitPoint pt2 = _canvas.ToUnit(tmpPt);
 
                 for (int ii = 0; ii < nItems; ++ii)
                 {
                     for (int jj = 0; jj < nItems; ++jj)
                     {
-                        int val = m_pixelMatrix[ii, jj];
+                        int val = m_pixelMatrix[jj, ii];
                         Console.Write("{0},", val);
                     }
                     Console.Write("\n");
@@ -104,6 +117,7 @@ namespace Canvas.AStartPathFindAlgorithms
             if (path == null || path.Count < 1)
                 return null;
             List<PathFinderNode> cornerNodesPath= ExtractConnerNodes(path);
+           // List<PathFinderNode> cornerNodesPath = path;
             List<UnitPoint> allPts = new List<UnitPoint>();
 
             PointF ptLeftBottom = PointF.Empty;
@@ -135,7 +149,8 @@ namespace Canvas.AStartPathFindAlgorithms
             }
             _boundingBox = new RectangleF(ptLeftBottom,
                 new SizeF(ptRightTop.X - ptLeftBottom.X, ptRightTop.Y - ptLeftBottom.Y));
-            List<UnitPoint> snapedPts = SnapToStartEndNodes(allPts, startPt, endPt);
+             List<UnitPoint> snapedPts = SnapToStartEndNodes(allPts, startPt, endPt);
+            //List<UnitPoint> snapedPts = allPts;
             return snapedPts;
         }
 
@@ -215,6 +230,8 @@ namespace Canvas.AStartPathFindAlgorithms
                         m_pixelMatrix[ii, jj] = 1;//the path can pass through these point
                     }
                 }
+                bool exportInfo = false;
+
                 List<IDrawObject> allObjs = _canvas.DataModel.GetHitObjects(_canvas, ScreenPixelRectToUnitRect(), false);
                 foreach (var obj in allObjs)
                 {
@@ -222,14 +239,53 @@ namespace Canvas.AStartPathFindAlgorithms
                     if (rectBase == null)
                         continue;
                     Rectangle pixelRect = ScreenUtils.ConvertRect(ScreenUtils.ToScreenNormalized(_canvas, rectBase.GetExactBoundingRect(_canvas)));
-                    //pixelRect.Inflate(-1, -1);
-                    for (int ii = pixelRect.Y; ii < pixelRect.Height + pixelRect.Y; ++ii)
+                    pixelRect.Inflate(-1, -1);//make sure the point can lay down on the boundary of rectangle
+                    for (int ii = pixelRect.Top; ii < pixelRect.Bottom; ++ii)
                     {
-                        for (int jj = pixelRect.X; jj < pixelRect.Width+pixelRect.X; ++jj)
+                        for (int jj = pixelRect.Left; jj < pixelRect.Right; ++jj)
                         {
-                            m_pixelMatrix[jj, ii] = 0;//the path should pass throught these point
+                            m_pixelMatrix[jj, ii] = 0;//the path should not pass throught these point
                         }
                     }
+                    const int threshold = 10;
+                    int[] leftXInterval = { pixelRect.Left, pixelRect.Left - threshold };
+                    int[] rightXInterval = { pixelRect.Right, pixelRect.Right + threshold };
+                    int[] topAndBottomXInterval = { pixelRect.Left, pixelRect.Right };
+
+                    int[] leftAndRightYInterval = { pixelRect.Top, pixelRect.Bottom };
+                    int[] topYInterval = { pixelRect.Top, pixelRect.Top - threshold };
+                    int[] bottomYInterval = { pixelRect.Bottom, pixelRect.Bottom + threshold };
+
+                    PopulateLinearBoundary(leftXInterval[0], leftXInterval[1], leftAndRightYInterval[0], leftAndRightYInterval[1], true);
+                    PopulateLinearBoundary(rightXInterval[0], rightXInterval[1], leftAndRightYInterval[0], leftAndRightYInterval[1], true);
+                    PopulateLinearBoundary(topYInterval[0], topYInterval[1], topAndBottomXInterval[0], topAndBottomXInterval[1], false);
+                    PopulateLinearBoundary(bottomYInterval[0], bottomYInterval[1], topAndBottomXInterval[0], topAndBottomXInterval[1], false);
+                    //---------------------------------------------------
+                    int nItems = m_pixelMatrix.GetUpperBound(0) + 1;
+                    int maxX = -1, maxY = -1, minX = 100000, minY = 100000;
+                    
+                    for (int ii = 0; ii < nItems && exportInfo; ++ii)//row
+                    {
+                        for (int jj = 0; jj < nItems; ++jj)//column
+                        {
+                            int val = m_pixelMatrix[jj, ii];
+                            Console.Write("{0} ", val);
+                            if (val != 0)
+                                continue;
+                            if (jj < minX)
+                                minX = jj;
+                            if (jj > maxX)
+                                maxX = jj;
+                            if (ii < minY)
+                                minY = ii;
+                            if (ii > maxY)
+                                maxY = ii;
+
+                        }
+                        Console.Write("\n");
+                    }
+                    //---------------------------------------------------
+
                 }
                 return true;
             }
@@ -240,10 +296,57 @@ namespace Canvas.AStartPathFindAlgorithms
             }
         }
 
+        void PopulateLinearBoundary(int linearStart, int linearEnd, int constStart, int constEnd, bool linearX)
+        {
+            int tmpLinearStart, tmpLinearEnd, populateVal, linearDelta;
+            const int maxPopulateVal = 80;
+            if (linearStart<linearEnd)
+            {
+                tmpLinearStart = linearStart;
+                tmpLinearEnd = linearEnd;
+                populateVal = maxPopulateVal;
+                linearDelta = -5;
+            }
+            else
+            {
+                tmpLinearStart = linearEnd;
+                tmpLinearEnd = linearStart;
+                populateVal = maxPopulateVal - (tmpLinearEnd - tmpLinearStart) * 5;
+                linearDelta = 5;
+            }
+
+            for (int jj = constStart; jj < constEnd; ++jj)
+            {
+                int val = populateVal;
+                for (int ii = tmpLinearStart; ii < tmpLinearEnd; ii ++)
+                {
+                    System.Diagnostics.Debug.Assert(val > 0);
+                    if (linearX)
+                        m_pixelMatrix[ii, jj] = (byte)val;
+                    else
+                        m_pixelMatrix[jj, ii] = (byte)val;
+                    val += linearDelta;
+                }
+            }
+        }
+
         List<PathFinderNode> ExtractConnerNodes(List<PathFinderNode> originalPathNodes)
         {
             if (originalPathNodes.Count < 3)
                 return originalPathNodes;
+
+            {
+                //validate the node, make sure the node can be walked thourgh.
+
+                for(int ii=0;ii<originalPathNodes.Count;++ii)
+                {
+                    bool wrongPos = m_pixelMatrix[originalPathNodes[ii].X, originalPathNodes[ii].Y] == 0;
+                    if(wrongPos)
+                    {
+                        int aa = 0;
+                    }
+                }
+            }
             List<PathFinderNode> cornnerNodes = new List<PathFinderNode>();
             cornnerNodes.Add(originalPathNodes[0]);
             for(int ii=1;ii<originalPathNodes.Count-1;++ii)
@@ -257,8 +360,7 @@ namespace Canvas.AStartPathFindAlgorithms
             cornnerNodes.Add(originalPathNodes[originalPathNodes.Count - 1]);
             return cornnerNodes;
         }
-
-        List<UnitPoint> SnapToStartEndNodes(List<UnitPoint> allNodes,UnitPoint startPt,UnitPoint endPt)
+        List<UnitPoint> SnapToStartEndNodes(List<UnitPoint> allNodes,UnitPoint ptStart,UnitPoint ptEnd)
         {
             //the first and last node don't equal the real start and end points.
             //we need to snap them here.
@@ -267,43 +369,39 @@ namespace Canvas.AStartPathFindAlgorithms
             modifiedNodes.InsertRange(0,allNodes);
             if(allNodes.Count==2)
             {
-                modifiedNodes[0] = startPt;
-                modifiedNodes[1] = endPt;
+                modifiedNodes[0] = ptEnd;
+                modifiedNodes[1] = ptStart;
                 return modifiedNodes;
             }
 
-            bool plot = false;
-            if(plot)
-            {
-                DebugUtls.DrawPoints(_canvas, allNodes);
-            }
-            modifiedNodes[0] = startPt;
+            modifiedNodes[0] = ptEnd;
             //snap to start point
             UnitPoint tmpPoint = new UnitPoint();
             if (modifiedNodes[1].X == modifiedNodes[2].X)//constrain x
             {
                 tmpPoint.X = modifiedNodes[1].X;
-                tmpPoint.Y = startPt.Y;
+                tmpPoint.Y = ptEnd.Y;
                 modifiedNodes[1] = tmpPoint;
             }
             else if (modifiedNodes[1].Y==modifiedNodes[2].Y)//constrain y
             {
-                tmpPoint.X = startPt.X;
+                tmpPoint.X = ptEnd.X;
                 tmpPoint.Y = modifiedNodes[1].Y;
                 modifiedNodes[1] = tmpPoint;
             }
             //snap to end point
             int lastItemIndex = allNodes.Count - 1;
-            modifiedNodes[lastItemIndex] = endPt;
-            if(modifiedNodes[lastItemIndex-1].X==modifiedNodes[lastItemIndex-2].X)
+            modifiedNodes[lastItemIndex] = ptStart;
+            tmpPoint = new UnitPoint();
+            if (modifiedNodes[lastItemIndex-1].X==modifiedNodes[lastItemIndex-2].X)
             {
                 tmpPoint.X = modifiedNodes[lastItemIndex - 1].X;
-                tmpPoint.Y = endPt.Y;
+                tmpPoint.Y = ptStart.Y;
                 modifiedNodes[lastItemIndex-1] = tmpPoint;
             }
             else if (modifiedNodes[lastItemIndex-1].Y==modifiedNodes[lastItemIndex-2].Y)
             {
-                tmpPoint.X = endPt.X;
+                tmpPoint.X = ptStart.X;
                 tmpPoint.Y = modifiedNodes[lastItemIndex - 1].Y;
                 modifiedNodes[lastItemIndex - 1] = tmpPoint;
             }

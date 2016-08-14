@@ -501,7 +501,9 @@ namespace Canvas
 		#region ICanvasOwner Members
 		public void SetPositionInfo(UnitPoint unitpos)
 		{
-			m_mousePosLabel.Text = unitpos.PosAsString();
+            PointF ptScreen = m_canvas.ToScreen(unitpos);
+            string screenPtInfo = string.Format(" screen:{0},{1},{2}", ptScreen.X, ptScreen.Y,m_canvas.Model.Zoom);
+			m_mousePosLabel.Text = unitpos.PosAsString()+screenPtInfo;
 			string s = string.Empty;
 			if (m_data.SelectedCount == 1 || m_canvas.NewObject != null)
 			{

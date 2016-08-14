@@ -260,7 +260,7 @@ namespace AStartPathFindAlgorithms
                     {
                         mStopped = true;
                         mCompletedTime = HighResolutionTime.GetTime();
-                        return null;
+                        throw new Exception("reach search limit");
                     }
 
                     if (mPunishChangeDirection)
