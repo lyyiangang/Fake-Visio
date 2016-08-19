@@ -820,7 +820,7 @@ namespace Canvas
 			}
 			return r;
 		}
-		public bool HandleMouseDown(UnitPoint mouseunitpoint, ref bool handled)
+		public bool HandleMouseDown(UnitPoint mouseunitpoint, ref bool handled, ISnapPoint snapPt=null)
 		{
 			handled = false;
 			if (m_nodes.Count == 0) // no nodes selected yet
@@ -839,6 +839,34 @@ namespace Canvas
 					m_originPoint = mouseunitpoint;
 				return handled;
 			}
+            if(m_nodes.Count>0)
+            {
+                //m_canvas.Model.MoveNodes(mouseunitpoint, m_nodes);
+                //m_nodes.Clear();
+                //if (m_nodes[0].GetOriginal() is DrawTools.RectBase)
+                //{
+                //    DrawTools.RectBase rectBase = (DrawTools.RectBase)m_nodes[0].GetOriginal();
+                //    foreach(var curNode in rectBase.GetConnectionCurveNodes())
+                //    {
+                //        INodePoint p = curNode.GetOriginal().NodePoint(m_canvas,curNode.GetPosition());
+                //        if (p != null)
+                //            m_nodes.Add(p);
+                //    }
+                //    m_canvas.Model.MoveNodes(mouseunitpoint, m_nodes);
+                //    m_nodes.Clear();
+                //}
+                //else
+                //{
+                //    DrawTools.RectBase rectBase = null;
+                //    if (snapPt != null)
+                //        rectBase = snapPt.Owner as DrawTools.RectBase;
+                //    if (rectBase != null)
+                //    {
+                //        foreach (var curNode in m_nodes)
+                //            rectBase.AddConnectionCurveNodes(curNode);
+                //    }
+                //}
+            }
 			// update selected nodes
 			m_canvas.Model.MoveNodes(mouseunitpoint, m_nodes);
 			m_nodes.Clear();

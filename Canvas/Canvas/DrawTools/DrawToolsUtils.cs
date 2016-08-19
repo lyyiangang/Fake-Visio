@@ -39,8 +39,6 @@ namespace Canvas.DrawTools
             }
             catch (Exception e)
             {
-                //lyy
-                int aa = 0;
             }
 		}
         static public RectangleF ConvertLeftTopRect2LeftBottomRect(RectangleF rect)

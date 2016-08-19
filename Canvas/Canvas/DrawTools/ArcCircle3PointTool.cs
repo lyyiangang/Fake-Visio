@@ -38,24 +38,6 @@ namespace Canvas.DrawTools
 		{
 			SetPoint(m_clone, pos);
 		}
-		/*
-		UnitPoint GetPoint()
-		{
-			if (m_curPoint == Arc3Point.eCurrentPoint.p1)
-				return m_clone.P1;
-			if (m_curPoint == Arc3Point.eCurrentPoint.p2)
-				return m_clone.P2;
-			if (m_curPoint == Arc3Point.eCurrentPoint.p3)
-				return m_clone.P3;
-			if (m_curPoint == Arc3Point.eCurrentPoint.startangle)
-				return m_clone.P1;
-			if (m_curPoint == Arc3Point.eCurrentPoint.endangle)
-				return m_clone.P3;
-			if (m_curPoint == Arc3Point.eCurrentPoint.radius)
-				return m_clone.P2;
-			return UnitPoint.Empty;
-		}
-		 * */
 		void SetPoint(Arc3Point arc, UnitPoint pos)
 		{
 			if (m_curPoint == Arc3Point.eCurrentPoint.p1)
@@ -117,8 +99,13 @@ namespace Canvas.DrawTools
 		public void OnKeyDown(ICanvas canvas, KeyEventArgs e)
 		{
 		}
-		#endregion
-	}
+
+        public UnitPoint GetPosition()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
 
 	class Arc3Point : DrawObjectBase, IArc, IDrawObject, ISerialize
 	{

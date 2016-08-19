@@ -266,14 +266,60 @@ namespace Canvas
 		}
 		public void MoveNodes(UnitPoint position, IEnumerable<INodePoint> nodes)
 		{
-			if (m_undoBuffer.CanCapture)
+            UnitPoint offset = UnitPoint.Empty;
+            foreach (var curNode in nodes)
+            {
+                offset.X = position.X - curNode.GetPosition().X;
+                offset.Y = position.Y - curNode.GetPosition().Y;
+                break;
+            }
+            //if (offset.IsEmpty)
+            //    return;
+            //UpdateConnectionCurvesWhenMovingNode(position, offset, nodes);
+           // List<INodePoint> allNodes = UpdateConnectionCurvesWhenMovingNode(position, nodes);
+            if (m_undoBuffer.CanCapture)
 				m_undoBuffer.AddCommand(new EditCommandNodeMove(nodes));
 			foreach (INodePoint node in nodes)
 			{
-				node.SetPosition(position);
+                //node.SetPosition(position);
+                node.SetPosition(node.GetPosition() + offset);
 				node.Finish();
 			}
 		}
+        List<INodePoint>  UpdateConnectionCurvesWhenMovingNode(UnitPoint pos, IEnumerable<INodePoint> nodes)
+        {
+            List<INodePoint> allNodes = new List<INodePoint>();
+            foreach(var curNode in nodes)
+            {
+                allNodes.Add(curNode);
+                DrawTools.RectBase rectBase = curNode.GetOriginal() as DrawTools.RectBase;
+                if (rectBase == null)
+                    continue;
+                foreach( var connectionCrvNode in GetAllConnectionCurveNodesAtPoint(pos, rectBase))
+                {
+                    allNodes.Add(connectionCrvNode);
+                }
+            }
+            return allNodes;
+        }
+        List<INodePoint> GetAllConnectionCurveNodesAtPoint(UnitPoint pos, DrawTools.RectBase rectBase)
+        {
+            List<INodePoint> allNodePoints = new List<INodePoint>();
+            foreach(var curLayer in Layers)
+            {
+                DrawingLayer drawingLayer = curLayer as DrawingLayer;
+                if (drawingLayer == null)
+                    continue;
+                foreach ( var curObj in drawingLayer.Objects)
+                {
+                    IConnectionCurve connectionCrv = curObj as IConnectionCurve;
+                    if (connectionCrv == null)
+                        continue;
+                    allNodePoints.Add(curObj.NodePoint(null, pos));
+                }
+            }
+            return allNodePoints;
+        }
 		public List<IDrawObject> GetHitObjects(ICanvas canvas, RectangleF selection, bool anyPoint)
 		{
 			List<IDrawObject> selected = new List<IDrawObject>();

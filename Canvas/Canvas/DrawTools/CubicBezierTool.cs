@@ -88,10 +88,20 @@ namespace Canvas.DrawTools
             if (pointid == ePoint.P2)
                 crv.P2 = point;
         }
+
+        public UnitPoint GetPosition()
+        {
+            if (m_pointId == ePoint.P1)
+                return m_owner.P1;
+            else if (m_pointId == ePoint.P2)
+                return m_owner.P2;
+            return UnitPoint.Empty;
+        }
     }
-    class CubicBezier : DrawObjectBase, IDrawObject, ISerialize
+    class CubicBezier : DrawObjectBase, IDrawObject, ISerialize, IConnectionCurve
     {
-		protected static int ThresholdPixel = 6;
+        System.Drawing.Drawing2D.AdjustableArrowCap m_arrowCap = null;
+        protected static int ThresholdPixel = 6;
         protected UnitPoint m_p1, m_p2, m_p1Ctrl, m_p2Ctrl, m_center;
         CubicBezierCurveCurve m_crv = null;
 
@@ -124,6 +134,8 @@ namespace Canvas.DrawTools
         {
             m_p1 = point;
             m_p2 = endpoint;
+            m_useStartArrow = false;
+            m_useEndArrow = false;
             UpdateCtrlPts();
             Width = width;
             Color = color;
@@ -142,6 +154,8 @@ namespace Canvas.DrawTools
             base.Copy(acopy);
             m_p1 = acopy.m_p1;
             m_p2 = acopy.m_p2;
+            m_useEndArrow = acopy.m_useEndArrow;
+            m_useStartArrow = acopy.m_useStartArrow;
             m_crv = acopy.m_crv;
             UpdateCtrlPts();
             Selected = acopy.Selected;
@@ -160,6 +174,32 @@ namespace Canvas.DrawTools
         {
             get { return UnitPoint.Empty; }
         }
+        bool m_useStartArrow = false, m_useEndArrow = false;
+        public bool UseStartArrow
+        {
+            get
+            {
+                return m_useStartArrow;
+            }
+
+            set
+            {
+                m_useStartArrow = value;
+            }
+        }
+
+        public bool UseEndArrow
+        {
+            get
+            {
+                return m_useEndArrow;
+            }
+
+            set
+            {
+                m_useEndArrow = value;
+            }
+        }
 
         public void AfterSerializedIn()
         {
@@ -169,9 +209,19 @@ namespace Canvas.DrawTools
         {
             Color color = Color;
             Pen pen = canvas.CreatePen(color, Width);
-            pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
             pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+            pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
             canvas.DrawBezier(canvas,pen, m_p1, m_p1Ctrl, m_p2Ctrl,m_p2);
+            if (m_useStartArrow)
+                pen.CustomStartCap = m_arrowCap;
+            else
+                pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+
+            if (m_useEndArrow)
+                pen.CustomEndCap = m_arrowCap;
+            else
+                pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+
             if (Highlighted)
                  canvas.DrawBezier(canvas, DrawUtils.SelectedPen, m_p1, m_p1Ctrl, m_p2Ctrl,m_p2);
             if (Selected)
@@ -181,13 +231,7 @@ namespace Canvas.DrawTools
                     DrawUtils.DrawNode(canvas, m_p1);
                 if (!m_p2.IsEmpty )
                     DrawUtils.DrawNode(canvas, m_p2);
-                //if (!m_p1Ctrl.IsEmpty )
-                //    DrawUtils.DrawNode(canvas, m_p1Ctrl);
-                //if (!m_p2Ctrl.IsEmpty )
-                //    DrawUtils.DrawNode(canvas, m_p2Ctrl);
-              //  RectangleF rect= m_crv.GetBoundingBox();
-           //     canvas.DrawRectangle(canvas, DrawUtils.SelectedPen, new UnitPoint(rect.X, rect.Y+rect.Height), rect.Width, rect.Height);
-            }
+           }
         }
 
         public RectangleF GetBoundingRect(ICanvas canvas)
@@ -223,7 +267,9 @@ namespace Canvas.DrawTools
 
         public INodePoint NodePoint(ICanvas canvas, UnitPoint point)
         {
-            float thWidth = Line.ThresholdWidth(canvas, Width, ThresholdPixel);
+            float thWidth = 0.0f;
+            if(canvas !=null)
+                thWidth = Line.ThresholdWidth(canvas, Width, ThresholdPixel);
             if (HitUtil.CircleHitPoint(m_p1, thWidth, point))
                 return new NodePointCubicBezier(this, NodePointCubicBezier.ePoint.P1);
             if (HitUtil.CircleHitPoint(m_p2, thWidth, point))
@@ -378,6 +424,11 @@ namespace Canvas.DrawTools
         }
 
         public RectangleF GetExactBoundingRect(ICanvas canvas)
+        {
+            throw new NotImplementedException();
+        }
+
+        public INodePoint GetNodePointFromPos(UnitPoint pt)
         {
             throw new NotImplementedException();
         }

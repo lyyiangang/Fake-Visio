@@ -109,15 +109,11 @@ namespace Canvas.AStartPathFindAlgorithms
             }
             #endregion
             //-----------------------------------------------------------------------
-
             _pathFinder.FindPathStop();
-            //if (passEndPoint)
-            //    m_pixelMatrix[pEnd.X, pEnd.Y] = 1;
             List<PathFinderNode> path = _pathFinder.FindPath(pStart, pEnd);
             if (path == null || path.Count < 1)
                 return null;
             List<PathFinderNode> cornerNodesPath= ExtractConnerNodes(path);
-           // List<PathFinderNode> cornerNodesPath = path;
             List<UnitPoint> allPts = new List<UnitPoint>();
 
             PointF ptLeftBottom = PointF.Empty;
@@ -240,26 +236,28 @@ namespace Canvas.AStartPathFindAlgorithms
                         continue;
                     Rectangle pixelRect = ScreenUtils.ConvertRect(ScreenUtils.ToScreenNormalized(_canvas, rectBase.GetExactBoundingRect(_canvas)));
                     pixelRect.Inflate(-1, -1);//make sure the point can lay down on the boundary of rectangle
-                    for (int ii = pixelRect.Top; ii < pixelRect.Bottom; ++ii)
-                    {
-                        for (int jj = pixelRect.Left; jj < pixelRect.Right; ++jj)
-                        {
-                            m_pixelMatrix[jj, ii] = 0;//the path should not pass throught these point
-                        }
-                    }
-                    const int threshold = 10;
-                    int[] leftXInterval = { pixelRect.Left, pixelRect.Left - threshold };
-                    int[] rightXInterval = { pixelRect.Right, pixelRect.Right + threshold };
-                    int[] topAndBottomXInterval = { pixelRect.Left, pixelRect.Right };
+                    PopulateValToMatrix(m_pixelMatrix, pixelRect);
+                    //for (int ii = pixelRect.Top; ii < pixelRect.Bottom; ++ii)
+                    //{
+                    //    for (int jj = pixelRect.Left; jj < pixelRect.Right; ++jj)
+                    //    {
+                    //        m_pixelMatrix[jj, ii] = 0;//the path should not pass throught these point
+                    //    }
+                    //}
 
-                    int[] leftAndRightYInterval = { pixelRect.Top, pixelRect.Bottom };
-                    int[] topYInterval = { pixelRect.Top, pixelRect.Top - threshold };
-                    int[] bottomYInterval = { pixelRect.Bottom, pixelRect.Bottom + threshold };
+                    //const int threshold = 10;
+                    //int[] leftXInterval = { pixelRect.Left, pixelRect.Left - threshold };
+                    //int[] rightXInterval = { pixelRect.Right, pixelRect.Right + threshold };
+                    //int[] topAndBottomXInterval = { pixelRect.Left, pixelRect.Right };
 
-                    PopulateLinearBoundary(leftXInterval[0], leftXInterval[1], leftAndRightYInterval[0], leftAndRightYInterval[1], true);
-                    PopulateLinearBoundary(rightXInterval[0], rightXInterval[1], leftAndRightYInterval[0], leftAndRightYInterval[1], true);
-                    PopulateLinearBoundary(topYInterval[0], topYInterval[1], topAndBottomXInterval[0], topAndBottomXInterval[1], false);
-                    PopulateLinearBoundary(bottomYInterval[0], bottomYInterval[1], topAndBottomXInterval[0], topAndBottomXInterval[1], false);
+                    //int[] leftAndRightYInterval = { pixelRect.Top, pixelRect.Bottom };
+                    //int[] topYInterval = { pixelRect.Top, pixelRect.Top - threshold };
+                    //int[] bottomYInterval = { pixelRect.Bottom, pixelRect.Bottom + threshold };
+
+                    //PopulateLinearBoundary(leftXInterval[0], leftXInterval[1], leftAndRightYInterval[0], leftAndRightYInterval[1], true);
+                    //PopulateLinearBoundary(rightXInterval[0], rightXInterval[1], leftAndRightYInterval[0], leftAndRightYInterval[1], true);
+                    //PopulateLinearBoundary(topYInterval[0], topYInterval[1], topAndBottomXInterval[0], topAndBottomXInterval[1], false);
+                    //PopulateLinearBoundary(bottomYInterval[0], bottomYInterval[1], topAndBottomXInterval[0], topAndBottomXInterval[1], false);
                     //---------------------------------------------------
                     int nItems = m_pixelMatrix.GetUpperBound(0) + 1;
                     int maxX = -1, maxY = -1, minX = 100000, minY = 100000;
@@ -269,7 +267,7 @@ namespace Canvas.AStartPathFindAlgorithms
                         for (int jj = 0; jj < nItems; ++jj)//column
                         {
                             int val = m_pixelMatrix[jj, ii];
-                            Console.Write("{0} ", val);
+                           // Console.Write("{0} ", val);
                             if (val != 0)
                                 continue;
                             if (jj < minX)
@@ -282,7 +280,7 @@ namespace Canvas.AStartPathFindAlgorithms
                                 maxY = ii;
 
                         }
-                        Console.Write("\n");
+                      //  Console.Write("\n");
                     }
                     //---------------------------------------------------
 
@@ -295,7 +293,78 @@ namespace Canvas.AStartPathFindAlgorithms
                 return false;
             }
         }
+        delegate int CalculateValFromDistance(int dist);
+         void PopulateValToMatrix(byte[,] matrix, Rectangle rect)
+        {
+            int nRows = matrix.GetUpperBound(0) + 1;
+            int nColms = matrix.GetUpperBound(1) + 1;
+            for (int iRow = rect.Top; iRow <=rect.Bottom; ++iRow)
+            {
+                for (int iColm = rect.Left; iColm <=rect.Right; ++iColm)
+                {
+                    matrix[iColm, iRow] = 0;
+                }
+            }
+            return;
+            CalculateValFromDistance calcVal = dist => {
+                System.Diagnostics.Debug.Assert(dist >= 0);
+                int val = 50 - dist * 5;
+                System.Diagnostics.Debug.Assert(val >= 0);
+                return val;
+            };
+            const int maxGradientLayers = 5;
+            for (int iRow = rect.Top; iRow < rect.Bottom; ++iRow)
+            {
+                //to left
+                int countGradientLayers = 0;
+                for (int iColm = rect.Left; iColm >= 0 && countGradientLayers < maxGradientLayers;
+                    --iColm)
+                {
+                    int dist = rect.Left - iColm;
+                    matrix[iColm, iRow] = (byte)calcVal(dist);
+                    ++countGradientLayers;
+                }
+                //to right
+                countGradientLayers = 0;
+                for (int iColm = rect.Right; iColm <= nColms - 1 && countGradientLayers < maxGradientLayers;
+                    ++iColm)
+                {
+                    int dist = iColm - rect.Right;
+                    matrix[iColm, iRow] = (byte)calcVal(dist);
+                    ++countGradientLayers;
+                }
+            }
 
+            for (int iColm = rect.Left; iColm <= rect.Right; ++iColm)
+            {
+                //top
+                int countGradientLayers = 0;
+                for (int iRow = rect.Top; iRow > 0 && countGradientLayers < maxGradientLayers;
+                    --iRow)
+                {
+                    int dist = rect.Top - iRow;
+                    matrix[iColm, iRow] = (byte)calcVal(dist);
+                    ++countGradientLayers;
+                }
+                //bottom
+                countGradientLayers = 0;
+                for (int iRow = rect.Bottom; iRow <= nRows - 1 && countGradientLayers < maxGradientLayers;
+                    ++iRow)
+                {
+                    int dist = iRow - rect.Bottom;
+                    matrix[iColm, iRow] = (byte)calcVal(dist);
+                    ++countGradientLayers;
+                }
+            }
+            //for(int iRows=0;iRows<nRows;++iRows)
+            //{
+            //    for(int iColms=0;iColms<nColms;++iColms)
+            //    {
+            //        System.Console.Write(matrix[iRows, iColms] + " ");
+            //    }
+            //    System.Console.Write("\n");
+            //}
+        }
         void PopulateLinearBoundary(int linearStart, int linearEnd, int constStart, int constEnd, bool linearX)
         {
             int tmpLinearStart, tmpLinearEnd, populateVal, linearDelta;

@@ -500,18 +500,19 @@ namespace Canvas
                 CommandEscape();
                 CommandPan();
             }
-
+            if (e.Button == MouseButtons.Right)
+                CommandEscape();
             m_mousedownPoint = new PointF(e.X, e.Y); // used when panning
 			m_dragOffset = new PointF(0,0);
 
 			UnitPoint mousepoint = ToUnit(m_mousedownPoint);
 			if (m_snappoint != null)
-				mousepoint = m_snappoint.SnapPoint;
+				mousepoint = m_snappoint.SnapPoint;//snap point: rect point
 			
 			if (m_commandType == eCommandType.editNode)
 			{
 				bool handled = false;
-				if (m_nodeMoveHelper.HandleMouseDown(mousepoint, ref handled))
+				if (m_nodeMoveHelper.HandleMouseDown(mousepoint, ref handled, m_snappoint))
 				{
 					FinishNodeEdit();
 					base.OnMouseDown(e);

@@ -6,7 +6,13 @@ using System.Windows.Forms;
 
 namespace Canvas
 {
-	public interface ICanvasOwner
+    public interface IConnectionCurve
+    {
+        bool UseStartArrow { get; set; }
+        bool UseEndArrow { get; set; }
+        INodePoint GetNodePointFromPos(UnitPoint pt);
+    }
+    public interface ICanvasOwner
 	{
 		void SetPositionInfo(UnitPoint unitpos);
 		void SetSnapInfo(ISnapPoint snap);
@@ -101,6 +107,7 @@ namespace Canvas
 		void Cancel();
 		void Finish();
 		void SetPosition(UnitPoint pos);
+        UnitPoint GetPosition();
 		void Undo();
 		void Redo();
 		void OnKeyDown(ICanvas canvas, KeyEventArgs e);

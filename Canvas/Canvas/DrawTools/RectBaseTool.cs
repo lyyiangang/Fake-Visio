@@ -89,6 +89,17 @@ namespace Canvas.DrawTools
         public void OnKeyDown(ICanvas canvas, KeyEventArgs e)
         {
         }
+
+        public UnitPoint GetPosition()
+        {
+            if (m_pointId == ePoint.Center)
+                return m_owner.Center;
+            else if (m_pointId == ePoint.P1)
+                return m_owner.P1;
+            else if (m_pointId == ePoint.P3)
+                return m_owner.P3;
+            return UnitPoint.Empty;
+        }
         #endregion
     }
 
@@ -193,6 +204,15 @@ namespace Canvas.DrawTools
             //RectBase a = new RectBase();
             //a.Copy(this);
             //return a;
+        }
+        List<INodePoint> m_connectionCurveNodes = new List<INodePoint>();
+      public  void AddConnectionCurveNodes(INodePoint pt)
+        {
+            m_connectionCurveNodes.Add(pt);
+        }
+        public List<INodePoint> GetConnectionCurveNodes()
+        {
+            return m_connectionCurveNodes;
         }
         void UpdateCenter()
         {
@@ -319,8 +339,6 @@ namespace Canvas.DrawTools
         protected void DrawNodes(ICanvas canvas)
         {
             DrawUtils.DrawNode(canvas, m_p1);
-            //DrawUtils.DrawNode(canvas, new UnitPoint(m_p3.X, m_p1.Y));
-            //DrawUtils.DrawNode(canvas, new UnitPoint(m_p1.X, m_p3.Y));
             DrawUtils.DrawNode(canvas, m_p3);
         }
         public INodePoint NodePoint(ICanvas canvas, UnitPoint point)

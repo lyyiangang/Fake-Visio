@@ -92,7 +92,16 @@ namespace Canvas.DrawTools
 			if (pointid == ePoint.P2)
 				line.P2 = point;
 		}
-	}
+
+        public UnitPoint GetPosition()
+        {
+            if (m_pointId == ePoint.P1)
+                return m_owner.P1;
+            else if (m_pointId == ePoint.P2)
+                return m_owner.P2;
+            return UnitPoint.Empty;
+        }
+    }
 	class Line : DrawObjectBase, IDrawObject, ISerialize
 	{
 		protected UnitPoint m_p1, m_p2;
@@ -244,7 +253,9 @@ namespace Canvas.DrawTools
 		}
 		public INodePoint NodePoint(ICanvas canvas, UnitPoint point)
 		{
-			float thWidth = ThresholdWidth(canvas, Width);
+            float thWidth = 0.0f;
+            if (canvas != null)
+                 thWidth = ThresholdWidth(canvas, Width);
 			if (HitUtil.CircleHitPoint(m_p1, thWidth, point))
 				return new NodePointLine(this, NodePointLine.ePoint.P1);
 			if (HitUtil.CircleHitPoint(m_p2, thWidth, point))
