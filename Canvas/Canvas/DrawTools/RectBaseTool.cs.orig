@@ -92,24 +92,34 @@ namespace Canvas.DrawTools
 
         public UnitPoint GetPosition()
         {
+<<<<<<< HEAD
+            if (m_pointId == ePoint.Center)
+                return m_owner.Center;
+            else if (m_pointId == ePoint.P1)
+                return m_owner.P1;
+            else if (m_pointId == ePoint.P3)
+                return m_owner.P3;
+            return UnitPoint.Empty;
+=======
             if (m_pointId == ePoint.P1)
                 return m_owner.P1;
             else if (m_pointId == ePoint.P3)
                 return m_owner.P3;
             return m_owner.Center;
+>>>>>>> b069e5b4fa41648b0cc2029f926c0f3b3d6d2cfc
         }
         #endregion
     }
 
-     class RectBase : DrawObjectBase, IDrawObject, ISerialize
+    class RectBase : DrawObjectBase, IDrawObject, ISerialize
     {
         //p1------------------------p2
         //|                         |
         //|                         |
         //|                         |
         //p4------------------------p3
-       protected UnitPoint m_center;
-       protected UnitPoint m_p1, m_p3/*,m_p2,m_p4*/;
+        protected UnitPoint m_center;
+        protected UnitPoint m_p1, m_p3/*,m_p2,m_p4*/;
         protected static int ThresholdPixel = 6;
         eCurrentPoint m_curPoint = eCurrentPoint.center;
 
@@ -182,7 +192,7 @@ namespace Canvas.DrawTools
             StrFormat.LineAlignment = StringAlignment.Center;
             StrBrush = Brushes.Black;
             FillShapeBrush = Brushes.LightBlue;
-                //Brushes.LemonChiffon;
+            //Brushes.LemonChiffon;
         }
         public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
         {

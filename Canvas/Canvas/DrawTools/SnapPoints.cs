@@ -34,7 +34,34 @@ namespace Canvas
 		{
 			get { return m_boundingRect; }
 		}
-		public virtual void Draw(ICanvas canvas)
+        protected object m_tag = null;
+        public object Tag
+        {
+            get
+            {
+                return m_tag;
+            }
+
+            set
+            {
+                m_tag = value;
+            }
+        }
+        protected int m_id = 0;
+        public int Id
+        {
+            get
+            {
+                return m_id;
+            }
+
+            set
+            {
+                m_id = value;
+            }
+        }
+
+        public virtual void Draw(ICanvas canvas)
 		{
 		}
 		#endregion
@@ -66,9 +93,10 @@ namespace Canvas
 	}
 	class VertextSnapPoint : SnapPointBase
 	{
-		public VertextSnapPoint(ICanvas canvas, IDrawObject owner, UnitPoint snappoint)
+		public VertextSnapPoint(ICanvas canvas, IDrawObject owner, UnitPoint snappoint, int id=0)
 			: base(canvas, owner, snappoint)
 		{
+            m_id = id;
 		}
 		public override void Draw(ICanvas canvas)
 		{
@@ -77,9 +105,10 @@ namespace Canvas
 	}
 	class MidpointSnapPoint : SnapPointBase
 	{
-		public MidpointSnapPoint(ICanvas canvas, IDrawObject owner, UnitPoint snappoint)
+		public MidpointSnapPoint(ICanvas canvas, IDrawObject owner, UnitPoint snappoint,int id=0)
 			: base(canvas, owner, snappoint)
 		{
+            m_id = id;
 		}
 		public override void Draw(ICanvas canvas)
 		{

@@ -93,15 +93,19 @@ namespace Canvas.DrawTools
         {
             if (m_pointId == ePoint.P1)
                 return m_owner.P1;
+<<<<<<< HEAD
             else if (m_pointId == ePoint.P2)
                 return m_owner.P2;
             return UnitPoint.Empty;
-    }
+=======
+            return m_owner.P2;
+>>>>>>> b069e5b4fa41648b0cc2029f926c0f3b3d6d2cfc
+        }
     }
     class CubicBezier : DrawObjectBase, IDrawObject, ISerialize, IConnectionCurve
     {
         System.Drawing.Drawing2D.AdjustableArrowCap m_arrowCap = null;
-		protected static int ThresholdPixel = 6;
+        protected static int ThresholdPixel = 6;
         protected UnitPoint m_p1, m_p2, m_p1Ctrl, m_p2Ctrl, m_center;
         CubicBezierCurveCurve m_crv = null;
 
@@ -215,7 +219,7 @@ namespace Canvas.DrawTools
             if (m_useStartArrow)
                 pen.CustomStartCap = m_arrowCap;
             else
-            pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+                pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
 
             if (m_useEndArrow)
                 pen.CustomEndCap = m_arrowCap;
@@ -231,7 +235,7 @@ namespace Canvas.DrawTools
                     DrawUtils.DrawNode(canvas, m_p1);
                 if (!m_p2.IsEmpty )
                     DrawUtils.DrawNode(canvas, m_p2);
-            }
+           }
         }
 
         public RectangleF GetBoundingRect(ICanvas canvas)

@@ -511,8 +511,9 @@ namespace Canvas
 			
 			if (m_commandType == eCommandType.editNode)
 			{
+                //modify a obj's node, e.g: move node
 				bool handled = false;
-				if (m_nodeMoveHelper.HandleMouseDown(mousepoint, ref handled, m_snappoint))
+				if (m_nodeMoveHelper.HandleMouseDown(mousepoint, ref handled))
 				{
 					FinishNodeEdit();
 					base.OnMouseDown(e);
@@ -521,6 +522,7 @@ namespace Canvas
 			}
 			if (m_commandType == eCommandType.select)
 			{
+                //select an exsiting obj
 				bool handled = false;
 				if (m_nodeMoveHelper.HandleMouseDown(mousepoint, ref handled))
 				{
@@ -537,7 +539,8 @@ namespace Canvas
 			}
 			if (m_commandType == eCommandType.draw)
 			{
-				HandleMouseDownWhenDrawing(mousepoint, null);
+                //make a new obj and add it to model
+				HandleMouseDownWhenDrawing(mousepoint, m_snappoint);
 				DoInvalidate(true);
 			}
 			if (m_commandType == eCommandType.edit)
