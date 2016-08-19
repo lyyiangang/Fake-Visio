@@ -63,8 +63,13 @@ namespace Canvas.DrawTools
 		public void OnKeyDown(ICanvas canvas, KeyEventArgs e)
 		{
 		}
-		#endregion
-	}
+
+        public UnitPoint GetPosition()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
 	class NodePointArcRadius : INodePoint
 	{
 		protected Arc m_owner;
@@ -113,8 +118,13 @@ namespace Canvas.DrawTools
 		public void OnKeyDown(ICanvas canvas, KeyEventArgs e)
 		{
 		}
-		#endregion
-	}
+
+        public UnitPoint GetPosition()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
 	class NodePointArcAngle : INodePoint
 	{
 		protected Arc m_owner;
@@ -169,8 +179,13 @@ namespace Canvas.DrawTools
 		public void OnKeyDown(ICanvas canvas, KeyEventArgs e)
 		{
 		}
-		#endregion
-	}
+
+        public UnitPoint GetPosition()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
 
 	class Arc : DrawObjectBase, IArc, IDrawObject, ISerialize
 	{

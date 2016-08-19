@@ -274,6 +274,17 @@ namespace Canvas
 				node.Finish();
 			}
 		}
+        public void MoveNodes(List<UnitPoint> allPosition, List<INodePoint> nodes)
+        {
+            System.Diagnostics.Debug.Assert(allPosition.Count == nodes.Count);
+            if (m_undoBuffer.CanCapture)
+                m_undoBuffer.AddCommand(new EditCommandNodeMove(nodes));
+           for(int ii=0;ii<nodes.Count;++ii)
+            {
+                nodes[ii].SetPosition(allPosition[ii]);
+                nodes[ii].Finish();
+            }
+        }
 		public List<IDrawObject> GetHitObjects(ICanvas canvas, RectangleF selection, bool anyPoint)
 		{
 			List<IDrawObject> selected = new List<IDrawObject>();

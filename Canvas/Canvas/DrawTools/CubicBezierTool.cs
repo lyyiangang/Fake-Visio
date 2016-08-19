@@ -88,6 +88,13 @@ namespace Canvas.DrawTools
             if (pointid == ePoint.P2)
                 crv.P2 = point;
         }
+
+        public UnitPoint GetPosition()
+        {
+            if (m_pointId == ePoint.P1)
+                return m_owner.P1;
+            return m_owner.P2;
+        }
     }
     class CubicBezier : DrawObjectBase, IDrawObject, ISerialize
     {

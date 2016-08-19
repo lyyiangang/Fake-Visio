@@ -89,18 +89,27 @@ namespace Canvas.DrawTools
         public void OnKeyDown(ICanvas canvas, KeyEventArgs e)
         {
         }
+
+        public UnitPoint GetPosition()
+        {
+            if (m_pointId == ePoint.P1)
+                return m_owner.P1;
+            else if (m_pointId == ePoint.P3)
+                return m_owner.P3;
+            return m_owner.Center;
+        }
         #endregion
     }
 
-     class RectBase : DrawObjectBase, IDrawObject, ISerialize
+    class RectBase : DrawObjectBase, IDrawObject, ISerialize
     {
         //p1------------------------p2
         //|                         |
         //|                         |
         //|                         |
         //p4------------------------p3
-       protected UnitPoint m_center;
-       protected UnitPoint m_p1, m_p3/*,m_p2,m_p4*/;
+        protected UnitPoint m_center;
+        protected UnitPoint m_p1, m_p3/*,m_p2,m_p4*/;
         protected static int ThresholdPixel = 6;
         eCurrentPoint m_curPoint = eCurrentPoint.center;
 
@@ -150,6 +159,19 @@ namespace Canvas.DrawTools
             center,
             p1, p3, done,
         }
+
+        public enum eVertexId
+        {
+            LeftTopCorner = 1,
+            RightTopCorner,
+            LeftBottomCorner,
+            RightBottomCorner,
+
+            TopEdgeMidPoint,
+            BottomEdgeMidPoint,
+            LeftEdgeMidPoint,
+            RigthEdgeMidPoint,
+        }
         public RectBase()
         {
             CurrentPoint = eCurrentPoint.p1;
@@ -160,7 +182,7 @@ namespace Canvas.DrawTools
             StrFormat.LineAlignment = StringAlignment.Center;
             StrBrush = Brushes.Black;
             FillShapeBrush = Brushes.LightBlue;
-                //Brushes.LemonChiffon;
+            //Brushes.LemonChiffon;
         }
         public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
         {
@@ -181,6 +203,7 @@ namespace Canvas.DrawTools
             P3 = acopy.P3;
             Selected = acopy.Selected;
             CurrentPoint = acopy.CurrentPoint;
+           // acopy.m_allConnectionCrvNodes.AddRange(m_allConnectionCrvNodes);
             UpdateCenter();
         }
         public string Id
@@ -198,6 +221,14 @@ namespace Canvas.DrawTools
         {
             m_center.X = (m_p1.X + m_p3.X) * 0.5f;
             m_center.Y = (m_p1.Y + m_p3.Y) * 0.5f;
+
+            //if (m_allConnectionCrvNodes.Count < 1)
+            //    return;
+            //foreach (var curItme in m_allConnectionCrvNodes)
+            //{
+            //    curItme.connectionCrvNode.SetPosition(GetPointFromVertexId(curItme.rectNodeId));
+            //    curItme.connectionCrvNode.Finish();
+            //}
         }
         public virtual void Draw(ICanvas canvas, RectangleF unitrect)
         {
@@ -216,7 +247,6 @@ namespace Canvas.DrawTools
             //    DrawUtils.DrawNode(canvas, m_center);
             //    DrawNodes(canvas);
             //}
-
         }
         public virtual void OnMouseMove(ICanvas canvas, UnitPoint point)
         {
@@ -341,33 +371,31 @@ namespace Canvas.DrawTools
             {
                 foreach (Type snaptype in runningsnaptypes)
                 {
+                    UnitPoint ptemp = UnitPoint.Empty;
                     if (snaptype == typeof(VertextSnapPoint))
                     {
-                        if (HitUtil.CircleHitPoint(m_p1, thWidth, point))
-                            return new VertextSnapPoint(canvas, this, m_p1);
-                        if (HitUtil.CircleHitPoint(m_p3, thWidth, point))
-                            return new VertextSnapPoint(canvas, this, m_p3);
+                        ptemp = GetPointFromVertexId(eVertexId.LeftTopCorner);
+                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))
+                            return new VertextSnapPoint(canvas, this, ptemp, (int)eVertexId.LeftTopCorner);//left top corner
+                        ptemp = GetPointFromVertexId(eVertexId.RightBottomCorner);
+                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))
+                            return new VertextSnapPoint(canvas, this, ptemp, (int)eVertexId.RightBottomCorner);//right bottom corner
                     }
                     if (snaptype == typeof(MidpointSnapPoint))
                     {
-                        float halfWidth, halfHeight;
-                        GetHalfWidthAndHeight(out halfWidth, out halfHeight);
+                        ptemp = GetPointFromVertexId(eVertexId.BottomEdgeMidPoint);
+                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))
+                            return new MidpointSnapPoint(canvas, this, ptemp, (int)eVertexId.BottomEdgeMidPoint);//bottom edge center
 
-                        UnitPoint ptemp = new UnitPoint(Center.X, Center.Y - halfHeight);
-                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))//
-                            return new MidpointSnapPoint(canvas, this, ptemp);
-
-                        ptemp = new UnitPoint(Center.X, Center.Y + halfHeight);
-                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))//
-                            return new MidpointSnapPoint(canvas, this, ptemp);
-
-                        ptemp = new UnitPoint(Center.X - halfWidth, Center.Y);
-                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))//
-                            return new MidpointSnapPoint(canvas, this, ptemp);
-
-                        ptemp = new UnitPoint(Center.X + halfWidth, Center.Y);
-                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))//
-                            return new MidpointSnapPoint(canvas, this, ptemp);
+                        ptemp = GetPointFromVertexId(eVertexId.TopEdgeMidPoint);
+                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))
+                            return new MidpointSnapPoint(canvas, this, ptemp, (int)eVertexId.TopEdgeMidPoint);//top edge center
+                        ptemp = GetPointFromVertexId(eVertexId.LeftEdgeMidPoint);
+                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))
+                            return new MidpointSnapPoint(canvas, this, ptemp, (int)eVertexId.LeftEdgeMidPoint);//left edge center
+                        ptemp = GetPointFromVertexId(eVertexId.RigthEdgeMidPoint);
+                        if (HitUtil.CircleHitPoint(ptemp, thWidth, point))
+                            return new MidpointSnapPoint(canvas, this, ptemp, (int)eVertexId.RigthEdgeMidPoint);//right edge center
                     }
                     if (snaptype == typeof(CenterSnapPoint))
                     {
@@ -407,7 +435,91 @@ namespace Canvas.DrawTools
         {
             return ScreenUtils.GetRect(m_p1, m_p3, 0);
         }
+       public struct ConnectionCrvNodeToRectBaseNodePair
+        {
+            public INodePoint connectionCrvNode;
+            public eVertexId rectNodeId;
+            public ConnectionCrvNodeToRectBaseNodePair(INodePoint node, eVertexId rectNodeId)
+            {
+                this.connectionCrvNode = node;
+                this.rectNodeId = rectNodeId;
+            }
+        };
 
+        List<ConnectionCrvNodeToRectBaseNodePair> m_allConnectionCrvNodes = new List<ConnectionCrvNodeToRectBaseNodePair>();
+        public void AttachConnectionCrvNode(INodePoint node)
+        {
+            ConnectionCrvNodeToRectBaseNodePair existNode = m_allConnectionCrvNodes.Find(
+                curNode => curNode.connectionCrvNode.GetOriginal() == node.GetOriginal()
+                );
+            if (existNode.connectionCrvNode == null)
+                m_allConnectionCrvNodes.Add(new ConnectionCrvNodeToRectBaseNodePair(node, GetVertexIdFromPoint(node.GetPosition())));
+        }
 
+        public List<ConnectionCrvNodeToRectBaseNodePair> AllConnectionCrvNodes
+        {
+            get { return m_allConnectionCrvNodes; }
+        }
+
+        eVertexId GetVertexIdFromPoint(UnitPoint pt)
+        {
+            float threshold = 1e-10f;
+            float halfWidth, halfHeight;
+            GetHalfWidthAndHeight(out halfWidth, out halfHeight);
+            if (HitUtil.CircleHitPoint(m_p1, threshold, pt))
+                return eVertexId.LeftTopCorner;
+            else if (HitUtil.CircleHitPoint(m_p3, threshold, pt))
+                return eVertexId.RightBottomCorner;
+
+            UnitPoint ptemp = new UnitPoint(Center.X, Center.Y - halfHeight);
+            if (HitUtil.CircleHitPoint(ptemp, threshold, pt))
+                return eVertexId.BottomEdgeMidPoint;
+
+            ptemp = new UnitPoint(Center.X, Center.Y + halfHeight);
+            if (HitUtil.CircleHitPoint(ptemp, threshold, pt))
+                return eVertexId.TopEdgeMidPoint;
+
+            ptemp = new UnitPoint(Center.X - halfWidth, Center.Y);
+            if (HitUtil.CircleHitPoint(ptemp, threshold, pt))
+                return eVertexId.LeftEdgeMidPoint;
+
+            ptemp = new UnitPoint(Center.X + halfWidth, Center.Y);
+            if (HitUtil.CircleHitPoint(ptemp, threshold, pt))
+                return eVertexId.RigthEdgeMidPoint;
+            throw new Exception("not match");
+        }
+
+       public UnitPoint GetPointFromVertexId(eVertexId vId)
+        {
+            UnitPoint pt = UnitPoint.Empty;
+            float halfWidth, halfHeight;
+            GetHalfWidthAndHeight(out halfWidth, out halfHeight);
+            switch (vId)
+            {
+                case eVertexId.LeftTopCorner:
+                    pt = m_p1;
+                    break;
+                case eVertexId.RightBottomCorner:
+                    pt = m_p3;
+                    break;
+                case eVertexId.BottomEdgeMidPoint:
+                    pt = new UnitPoint(Center.X, Center.Y - halfHeight);
+                    break;
+                case eVertexId.TopEdgeMidPoint:
+                    pt = new UnitPoint(Center.X, Center.Y + halfHeight);
+                    break;
+                case eVertexId.LeftEdgeMidPoint:
+                    pt = new UnitPoint(Center.X - halfWidth, Center.Y);
+                    break;
+                case eVertexId.RigthEdgeMidPoint:
+                    pt = new UnitPoint(Center.X + halfWidth, Center.Y);
+                    break;
+                default:
+                    throw new Exception("not match");
+                    break;
+            }
+
+            return pt;
+        }
     }
 }

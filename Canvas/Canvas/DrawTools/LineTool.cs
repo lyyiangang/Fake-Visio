@@ -92,7 +92,15 @@ namespace Canvas.DrawTools
 			if (pointid == ePoint.P2)
 				line.P2 = point;
 		}
-	}
+
+        public UnitPoint GetPosition()
+        {
+            if (m_pointId == ePoint.P1)
+                return m_owner.P1;
+            return m_owner.P2;
+
+        }
+    }
 	class Line : DrawObjectBase, IDrawObject, ISerialize
 	{
 		protected UnitPoint m_p1, m_p2;
@@ -227,7 +235,12 @@ namespace Canvas.DrawTools
 				m_p2 = HitUtil.NearestPointOnCircle(src.Center, src.Radius, m_p1, 0);
 				return eDrawObjectMouseDown.DoneRepeat;
 			}
-			if (Control.ModifierKeys == Keys.Control)
+            if (snappoint is SnapPointBase && snappoint.Owner is RectBase)
+            {
+                RectBase rect = snappoint.Owner as RectBase;
+                rect.AttachConnectionCrvNode(new NodePointLine(this, NodePointLine.ePoint.P2));
+            }
+            if (Control.ModifierKeys == Keys.Control)
 				point = HitUtil.OrthoPointD(m_p1, point, 45);
 			m_p2 = point;
 			return eDrawObjectMouseDown.DoneRepeat;

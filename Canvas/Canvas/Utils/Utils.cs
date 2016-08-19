@@ -839,13 +839,36 @@ namespace Canvas
 					m_originPoint = mouseunitpoint;
 				return handled;
 			}
-			// update selected nodes
-			m_canvas.Model.MoveNodes(mouseunitpoint, m_nodes);
+            // update selected nodes
+            m_canvas.Model.MoveNodes(mouseunitpoint, m_nodes);
+            MoveReferenceNodesOfRect(m_nodes);
 			m_nodes.Clear();
-			handled = true;
+            handled = true;
 			m_canvas.CanvasCtrl.DoInvalidate(true);
 			return handled;
 		}
+        void MoveReferenceNodesOfRect(List<INodePoint> rectNodes)
+        {
+            List<INodePoint> allConnectionCrvNodes = new List<INodePoint>();
+            List<UnitPoint> allNewPos = new List<UnitPoint>();
+            foreach(var curNode in rectNodes)
+            {
+                DrawTools.RectBase rectBase = curNode.GetOriginal() as DrawTools.RectBase;
+                if (rectBase == null)
+                    continue;
+                List<DrawTools.RectBase.ConnectionCrvNodeToRectBaseNodePair> allNodes = rectBase.AllConnectionCrvNodes;
+                if (allNodes.Count < 1)
+                    continue;
+                foreach(var curConnectionCrvNode in allNodes)
+                {
+                    allConnectionCrvNodes.Add(curConnectionCrvNode.connectionCrvNode);
+                    allNewPos.Add(rectBase.GetPointFromVertexId(curConnectionCrvNode.rectNodeId));
+                }
+            }
+            if (allNewPos.Count < 1)
+                return;
+            m_canvas.Model.MoveNodes(allNewPos, allConnectionCrvNodes);
+        }
 		public void HandleCancelMove()
 		{
 			foreach (INodePoint p in m_nodes)

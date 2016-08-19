@@ -117,8 +117,13 @@ namespace Canvas.DrawTools
 		public void OnKeyDown(ICanvas canvas, KeyEventArgs e)
 		{
 		}
-		#endregion
-	}
+
+        public UnitPoint GetPosition()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
 
 	class Arc3Point : DrawObjectBase, IArc, IDrawObject, ISerialize
 	{

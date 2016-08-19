@@ -51,8 +51,9 @@ namespace Canvas
 		void MoveObjects(UnitPoint offset, IEnumerable<IDrawObject> objects);
 		void CopyObjects(UnitPoint offset, IEnumerable<IDrawObject> objects);
 		void MoveNodes(UnitPoint position, IEnumerable<INodePoint> nodes);
+        void MoveNodes(List<UnitPoint> allPosition, List<INodePoint> nodes);
 
-		IEditTool GetEditTool(string id);
+        IEditTool GetEditTool(string id);
 		void AfterEditObjects(IEditTool edittool);
 
 		List<IDrawObject> GetHitObjects(ICanvas canvas, RectangleF selection, bool anyPoint);
@@ -86,6 +87,8 @@ namespace Canvas
 		UnitPoint	SnapPoint		{ get; }
 		RectangleF	BoundingRect	{ get; }
 		void Draw(ICanvas canvas);
+        object Tag { get; set; }
+        int Id { get; set; }
 	}
 	public enum eDrawObjectMouseDown
 	{
@@ -101,6 +104,7 @@ namespace Canvas
 		void Cancel();
 		void Finish();
 		void SetPosition(UnitPoint pos);
+        UnitPoint GetPosition();
 		void Undo();
 		void Redo();
 		void OnKeyDown(ICanvas canvas, KeyEventArgs e);
