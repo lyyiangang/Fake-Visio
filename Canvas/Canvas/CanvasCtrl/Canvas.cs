@@ -493,7 +493,21 @@ namespace Canvas
 				}
 			}
 		}
-		protected override void OnMouseDown(MouseEventArgs e)
+        protected override void OnMouseDoubleClick(MouseEventArgs e)
+        {
+            if (m_commandType != eCommandType.select || m_model.SelectedCount < 1)
+                return;
+            UnitPoint mousePt = ToUnit(new PointF(e.X, e.Y));
+            foreach (var curObj in m_model.SelectedObjects)
+            {
+                DrawTools.RectBase rect = curObj as DrawTools.RectBase;
+                if (rect == null || !rect.PointInObject(m_canvaswrapper, mousePt))
+                    continue;
+               // rect.OnMouseDoubleClick(m_canvaswrapper, e);
+            }
+            base.OnMouseDoubleClick(e);
+        }
+        protected override void OnMouseDown(MouseEventArgs e)
 		{
             if (e.Button == MouseButtons.Middle)
             {

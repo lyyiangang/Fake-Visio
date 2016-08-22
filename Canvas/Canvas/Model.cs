@@ -210,8 +210,8 @@ namespace Canvas
 		}
 		public void AddObject(ICanvasLayer layer, IDrawObject drawobject)
 		{
-			if (drawobject is DrawTools.IObjectEditInstance)
-				drawobject = ((DrawTools.IObjectEditInstance)drawobject).GetDrawObject();
+			//if (drawobject is DrawTools.IObjectEditInstance)
+			//	drawobject = ((DrawTools.IObjectEditInstance)drawobject).GetDrawObject();
 			if (m_undoBuffer.CanCapture)
 				m_undoBuffer.AddCommand(new EditCommandAdd(layer, drawobject));
 			((DrawingLayer)layer).AddObject(drawobject);

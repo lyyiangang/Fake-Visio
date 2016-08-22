@@ -847,11 +847,11 @@ namespace Canvas
 			m_canvas.CanvasCtrl.DoInvalidate(true);
 			return handled;
 		}
-        void MoveReferenceNodesOfRect(List<INodePoint> rectNodes)
+        void MoveReferenceNodesOfRect(List<INodePoint> selectedNodes)
         {
             List<INodePoint> allConnectionCrvNodes = new List<INodePoint>();
             List<UnitPoint> allNewPos = new List<UnitPoint>();
-            foreach(var curNode in rectNodes)
+            foreach(var curNode in selectedNodes)
             {
                 DrawTools.RectBase rectBase = curNode.GetOriginal() as DrawTools.RectBase;
                 if (rectBase == null)

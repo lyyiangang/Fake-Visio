@@ -102,6 +102,26 @@ namespace Canvas
 			return true;
 		}
 	}
+
+    //public struct DrawObjProperty
+    //{
+    //    public enum eObjType
+    //    {
+    //        Width,
+    //        Text,
+    //        Color,
+    //    };
+
+    //    public int Width;
+    //    public string Text;
+    //    public Color ObjColor;
+    //    public eObjType ObjType;
+    //};
+    //class EditCommandModifyProperty:EditCommandBase
+    //{
+    //    List<IDrawObject> m_objects = new List<IDrawObject>();
+
+    //}
 	class EditCommandNodeMove : EditCommandBase
 	{
 		List<INodePoint> m_objects = new List<INodePoint>();
@@ -140,6 +160,7 @@ namespace Canvas
 			return true;
 		}
 	}
+
 	class UndoRedoBuffer
 	{
 		List<EditCommandBase> m_undoBuffer = new List<EditCommandBase>();

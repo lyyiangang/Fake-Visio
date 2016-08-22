@@ -292,16 +292,6 @@ namespace Canvas.DrawTools
         public virtual bool PointInObject(ICanvas canvas, UnitPoint point)
         {
             throw new Exception();
-
-            //RectangleF boundingrect = GetBoundingRect(canvas);
-            //if (boundingrect.Contains(point.Point) == false)
-            //    return false;
-            //float thWidth = Line.ThresholdWidth(canvas, Width, ThresholdPixel);
-            //if (HitUtil.PointInPoint(m_center, point, thWidth))
-            //    return true;
-            //float halfWidth, halfHeight;
-            //GetHalfWidthAndHeight(out halfWidth, out halfHeight);
-            //return HitUtil.IsPointInOval(m_center, halfWidth, halfHeight, point, 3 * thWidth);
         }
         public bool ObjectInRectangle(ICanvas canvas, RectangleF rect, bool anyPoint)
         {
@@ -523,10 +513,14 @@ namespace Canvas.DrawTools
                     break;
                 default:
                     throw new Exception("not match");
-                    break;
             }
 
             return pt;
+        }
+
+        public virtual void OnMouseDoubleClick(ICanvas canvas, MouseEventArgs e)
+        {
+
         }
     }
 }
