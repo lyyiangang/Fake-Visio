@@ -493,6 +493,7 @@ namespace Canvas
 				}
 			}
 		}
+        TextBox m_rectBaseTextBox = null;
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
             if (m_commandType != eCommandType.select || m_model.SelectedCount < 1)
@@ -500,15 +501,33 @@ namespace Canvas
             UnitPoint mousePt = ToUnit(new PointF(e.X, e.Y));
             foreach (var curObj in m_model.SelectedObjects)
             {
-                DrawTools.RectBase rect = curObj as DrawTools.RectBase;
-                if (rect == null || !rect.PointInObject(m_canvaswrapper, mousePt))
+                DrawTools.RectBase rectBase = curObj as DrawTools.RectBase;
+                if (rectBase == null || !rectBase.PointInObject(m_canvaswrapper, mousePt))
                     continue;
-               // rect.OnMouseDoubleClick(m_canvaswrapper, e);
+                RectangleF rect = ScreenUtils.ToScreenNormalized(m_canvaswrapper, rectBase.GetExactBoundingRect(m_canvaswrapper));
+                rect.Inflate(1, 1);
+                m_rectBaseTextBox = new TextBox();
+                m_rectBaseTextBox.Tag = rectBase;
+                m_rectBaseTextBox.Multiline = true;
+                m_rectBaseTextBox.Font = new Font("Times New Roman", 15.0f);
+                m_rectBaseTextBox.Location = new Point((int)rect.Left, (int)rect.Top);
+                m_rectBaseTextBox.Size = new Size((int)rect.Width, (int)rect.Height);
+                m_rectBaseTextBox.Text = rectBase.Text;
+                Controls.Add(m_rectBaseTextBox);
+                break;
             }
             base.OnMouseDoubleClick(e);
         }
         protected override void OnMouseDown(MouseEventArgs e)
 		{
+            if(m_rectBaseTextBox!=null && m_rectBaseTextBox.Tag != null)
+            {
+                ((DrawTools.RectBase)m_rectBaseTextBox.Tag).Text = m_rectBaseTextBox.Text;
+                ((DrawTools.RectBase)m_rectBaseTextBox.Tag).Selected = false;
+                Controls.Remove(m_rectBaseTextBox);
+                m_rectBaseTextBox = null;
+                return;
+            }
             if (e.Button == MouseButtons.Middle)
             {
                 CommandEscape();
@@ -527,7 +546,7 @@ namespace Canvas
 			{
                 //modify a obj's node, e.g: move node
 				bool handled = false;
-				if (m_nodeMoveHelper.HandleMouseDown(mousepoint, ref handled))
+				if (m_nodeMoveHelper.HandleMouseDown(mousepoint, ref handled,m_snappoint))
 				{
 					FinishNodeEdit();
 					base.OnMouseDown(e);
@@ -538,7 +557,7 @@ namespace Canvas
 			{
                 //select an exsiting obj
 				bool handled = false;
-				if (m_nodeMoveHelper.HandleMouseDown(mousepoint, ref handled))
+				if (m_nodeMoveHelper.HandleMouseDown(mousepoint, ref handled, m_snappoint))
 				{
 					m_commandType = eCommandType.editNode;
 					m_snappoint = null;

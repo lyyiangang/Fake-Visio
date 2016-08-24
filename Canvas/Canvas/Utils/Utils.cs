@@ -820,7 +820,7 @@ namespace Canvas
 			}
 			return r;
 		}
-		public bool HandleMouseDown(UnitPoint mouseunitpoint, ref bool handled)
+		public bool HandleMouseDown(UnitPoint mouseunitpoint, ref bool handled, ISnapPoint snapPt=null)
 		{
 			handled = false;
 			if (m_nodes.Count == 0) // no nodes selected yet
@@ -841,33 +841,57 @@ namespace Canvas
 			}
 			// update selected nodes
 			m_canvas.Model.MoveNodes(mouseunitpoint, m_nodes);
-            MoveReferenceNodesOfRect(m_nodes);
+            MoveReferenceNodesOfRect(m_nodes, snapPt);
 			m_nodes.Clear();
 			handled = true;
 			m_canvas.CanvasCtrl.DoInvalidate(true);
 			return handled;
 		}
-        void MoveReferenceNodesOfRect(List<INodePoint> selectedNodes)
+        void MoveReferenceNodesOfRect(List<INodePoint> selectedNodes, ISnapPoint snapPt)
         {
             List<INodePoint> allConnectionCrvNodes = new List<INodePoint>();
             List<UnitPoint> allNewPos = new List<UnitPoint>();
             foreach(var curNode in selectedNodes)
             {
+                DeattachConnectionNode(curNode);
                 DrawTools.RectBase rectBase = curNode.GetOriginal() as DrawTools.RectBase;
-                if (rectBase == null)
-                    continue;
-                List<DrawTools.RectBase.ConnectionCrvNodeToRectBaseNodePair> allNodes = rectBase.AllConnectionCrvNodes;
-                if (allNodes.Count < 1)
-                    continue;
-                foreach(var curConnectionCrvNode in allNodes)
+                IConnectionCurve connectionCrv = curNode.GetOriginal() as IConnectionCurve;
+
+                if (rectBase != null)
                 {
-                    allConnectionCrvNodes.Add(curConnectionCrvNode.connectionCrvNode);
-                    allNewPos.Add(rectBase.GetPointFromVertexId(curConnectionCrvNode.rectNodeId));
+                    List<DrawTools.RectBase.ConnectionCrvNodeToRectBaseNodePair> allNodes = rectBase.AllConnectionCrvNodes;
+                    if (allNodes.Count < 1)
+                        continue;
+                    foreach (var curConnectionCrvNode in allNodes)
+                    {
+                        allConnectionCrvNodes.Add(curConnectionCrvNode.connectionCrvNode);
+                        allNewPos.Add(rectBase.GetPointFromVertexId(curConnectionCrvNode.rectNodeId));
+                    }
+                }
+                if(connectionCrv!=null && snapPt !=null)
+                {
+                    IDrawObject drawObj = connectionCrv as IDrawObject;
+                    drawObj.OnMouseDown(m_canvas, snapPt.SnapPoint, snapPt);
                 }
             }
             if (allNewPos.Count < 1)
                 return;
             m_canvas.Model.MoveNodes(allNewPos, allConnectionCrvNodes);
+        }
+        void DeattachConnectionNode(INodePoint node)
+        {
+             foreach(var curLayer in m_canvas.Model.Layers)
+            {
+                DrawingLayer drawingLayer = curLayer as DrawingLayer;
+                if (drawingLayer == null)
+                    continue;
+                foreach(var curObj in drawingLayer.Objects)
+                {
+                    if (!(curObj is DrawTools.RectBase))
+                        continue;
+                    ((DrawTools.RectBase)curObj).DeattachConnectionCrvNode(node);
+                }
+            }
         }
 		public void HandleCancelMove()
 		{

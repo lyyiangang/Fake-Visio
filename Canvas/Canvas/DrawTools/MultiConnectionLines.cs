@@ -100,8 +100,9 @@ namespace Canvas.DrawTools
         }
     }
 
-    class MultiConnectionLines : DrawObjectBase, IDrawObject, ISerialize
+    class MultiConnectionLines : DrawObjectBase, IDrawObject, ISerialize, IConnectionCurve
     {
+            System.Drawing.Drawing2D.AdjustableArrowCap m_arrowCap = null;
 		protected static int ThresholdPixel = 6;
         protected AStartPathFinderWrapper m_pathFinder = null;
         protected List<UnitPoint> m_allPts;
@@ -114,8 +115,10 @@ namespace Canvas.DrawTools
             }
         }
         public MultiConnectionLines()
-        {
+        { 
             m_allPts = new List<UnitPoint>();
+            m_guid = System.Guid.NewGuid().ToString();
+            m_arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(5, 5);
         }
         public MultiConnectionLines(List<UnitPoint> allPts,float width,Color color)
         {
@@ -125,6 +128,9 @@ namespace Canvas.DrawTools
             Width = width;
             Color = color;
             Selected = false;
+            m_guid = System.Guid.NewGuid().ToString();
+            m_arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(5, 5);
+
         }
         public UnitPoint RepeatStartingPoint
         {
@@ -163,6 +169,41 @@ namespace Canvas.DrawTools
                 m_forceFindPath = true;
             }
         }
+        string m_guid = string.Empty;
+        public string Guid
+        {
+            get
+            {
+                return m_guid;
+            }
+        }
+
+        bool m_useStartArrow = false, m_useEndArrow = false;
+        public bool UseStartArrow
+        {
+            get
+            {
+                return m_useStartArrow;
+            }
+
+            set
+            {
+                m_useStartArrow = value;
+            }
+        }
+
+        public bool UseEndArrow
+        {
+            get
+            {
+                return m_useEndArrow;
+            }
+
+            set
+            {
+                m_useEndArrow = value;
+            }
+        }
 
         public void AfterSerializedIn()
         {
@@ -180,6 +221,7 @@ namespace Canvas.DrawTools
             base.Copy(acopy);
             m_p1 = acopy.m_p1;
             m_p2 = acopy.m_p2;
+            m_guid = acopy.m_guid;
             Selected = acopy.Selected;
         }
 
@@ -194,17 +236,28 @@ namespace Canvas.DrawTools
             if (m_allPts == null || m_allPts.Count < 2)
                 return;
             Pen pen = canvas.CreatePen(Color, Width);
-            pen.EndCap = LineCap.Round;
-            pen.StartCap = LineCap.Round;
-            for(int ii=0;ii< m_allPts.Count-1;++ii)
+            m_useEndArrow = true;
+
+            for (int ii= m_allPts.Count - 1; ii>0 ;--ii)
             {
-                canvas.DrawLine(canvas, pen, m_allPts[ii], m_allPts[ii + 1]);
+                if(ii==1)
+                {
+                    if (m_useStartArrow)
+                        pen.CustomStartCap = m_arrowCap;
+                    else
+                        pen.StartCap = LineCap.Round;
+                    if (m_useEndArrow)
+                        pen.CustomEndCap = m_arrowCap;
+                    else
+                        pen.EndCap = LineCap.Round;
+                }
+                canvas.DrawLine(canvas, pen, m_allPts[ii], m_allPts[ii - 1]);
             }
             if(Selected)
             {
-                for (int ii = 0; ii < m_allPts.Count - 1; ++ii)
+                for (int ii = m_allPts.Count - 1; ii > 0; --ii)
                 {
-                    canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_allPts[ii], m_allPts[ii + 1]);
+                    canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_allPts[ii], m_allPts[ii - 1]);
                 }
                 if (!m_p1.IsEmpty)
                     DrawUtils.DrawNode(canvas, m_p1);
@@ -286,6 +339,14 @@ namespace Canvas.DrawTools
 
         public eDrawObjectMouseDown OnMouseDown(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)
         {
+            if (snappoint is SnapPointBase && snappoint.Owner is RectBase)
+            {
+                NodePointMultiConnectionLine.ePoint pointType = HitUtil.Distance(point, m_p1) < HitUtil.Distance(point, m_p2) ?
+                    NodePointMultiConnectionLine.ePoint.P1 : NodePointMultiConnectionLine.ePoint.P2;
+                RectBase rect = snappoint.Owner as RectBase;
+                rect.AttachConnectionCrvNode(new NodePointMultiConnectionLine(this, pointType));
+            }
+
             OnMouseMove(canvas,point);
             Selected = false;
             if (m_allPts == null || m_allPts.Count < 2)
@@ -313,7 +374,7 @@ namespace Canvas.DrawTools
 
         public bool PointInObject(ICanvas canvas, UnitPoint point)
         {
-            if (m_allPts.Count < 1)
+            if (m_allPts==null || m_allPts.Count < 1)
                 return false;
             float thWidth =Line.ThresholdWidth(canvas, Width, ThresholdPixel);
             for(int ii=0;ii<m_allPts.Count-1;++ii)
@@ -330,6 +391,11 @@ namespace Canvas.DrawTools
         }
 
         public RectangleF GetExactBoundingRect(ICanvas canvas)
+        {
+            throw new NotImplementedException();
+        }
+
+        public INodePoint GetNodePointFromPos(UnitPoint pt)
         {
             throw new NotImplementedException();
         }

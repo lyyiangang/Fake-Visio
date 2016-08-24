@@ -124,13 +124,15 @@ namespace Canvas.DrawTools
                 UpdateCtrlPts();
             }
         }
-
+        string m_guid = string.Empty;
         public static string ObjectType
         {
             get { return "cubicBezier"; }
         }
         public CubicBezier()
         {
+            m_guid = System.Guid.NewGuid().ToString();
+            m_arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(5, 5);
         }
         public CubicBezier(UnitPoint point, UnitPoint endpoint, float width, Color color)
         {
@@ -142,6 +144,8 @@ namespace Canvas.DrawTools
             Width = width;
             Color = color;
             Selected = false;
+            m_guid = System.Guid.NewGuid().ToString();
+            m_arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(5, 5);
         }
         public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
         {
@@ -159,6 +163,7 @@ namespace Canvas.DrawTools
             m_useEndArrow = acopy.m_useEndArrow;
             m_useStartArrow = acopy.m_useStartArrow;
             m_crv = acopy.m_crv;
+            m_guid = acopy.Guid;
             UpdateCtrlPts();
             Selected = acopy.Selected;
         }
@@ -203,6 +208,14 @@ namespace Canvas.DrawTools
             }
         }
 
+        public string Guid
+        {
+            get
+            {
+                return m_guid;
+            }
+        }
+
         public void AfterSerializedIn()
         {
         }
@@ -211,18 +224,17 @@ namespace Canvas.DrawTools
         {
             Color color = Color;
             Pen pen = canvas.CreatePen(color, Width);
-            pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
-            pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-            canvas.DrawBezier(canvas,pen, m_p1, m_p1Ctrl, m_p2Ctrl,m_p2);
+            m_useEndArrow = true;
+
             if (m_useStartArrow)
                 pen.CustomStartCap = m_arrowCap;
             else
-            pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
-
+                pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
             if (m_useEndArrow)
                 pen.CustomEndCap = m_arrowCap;
             else
                 pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+            canvas.DrawBezier(canvas,pen, m_p1, m_p1Ctrl, m_p2Ctrl,m_p2);
 
             if (Highlighted)
                  canvas.DrawBezier(canvas, DrawUtils.SelectedPen, m_p1, m_p1Ctrl, m_p2Ctrl,m_p2);
@@ -321,6 +333,13 @@ namespace Canvas.DrawTools
                 Arc src = snappoint.Owner as Arc;
                 m_p2 = HitUtil.NearestPointOnCircle(src.Center, src.Radius, m_p1, 0);
                 return eDrawObjectMouseDown.DoneRepeat;
+            }
+            if (snappoint is SnapPointBase && snappoint.Owner is RectBase)
+            {
+                NodePointCubicBezier.ePoint pointType = HitUtil.Distance(point, m_p1) < HitUtil.Distance(point, m_p2) ?
+                    NodePointCubicBezier.ePoint.P1 : NodePointCubicBezier.ePoint.P2;
+                RectBase rect = snappoint.Owner as RectBase;
+                rect.AttachConnectionCrvNode(new NodePointCubicBezier(this, pointType));
             }
             if (Control.ModifierKeys == Keys.Control)
                 point = HitUtil.OrthoPointD(m_p1, point, 45);

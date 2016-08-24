@@ -103,11 +103,12 @@ namespace Canvas.DrawTools
 
         }
 	}
-	class Line : DrawObjectBase, IDrawObject, ISerialize
+	class Line : DrawObjectBase, IDrawObject, ISerialize,IConnectionCurve
 	{
+        System.Drawing.Drawing2D.AdjustableArrowCap m_arrowCap = null;
 		protected UnitPoint m_p1, m_p2;
 
-		[XmlSerializable]
+        [XmlSerializable]
 		public UnitPoint P1
 		{
 			get { return m_p1; }
@@ -126,16 +127,20 @@ namespace Canvas.DrawTools
 		}
 		public Line()
 		{
-		}
-		public Line(UnitPoint point, UnitPoint endpoint, float width, Color color)
+            m_guid = System.Guid.NewGuid().ToString();
+            m_arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(5, 5);
+        }
+        public Line(UnitPoint point, UnitPoint endpoint, float width, Color color)
 		{
 			P1 = point;
 			P2 = endpoint;
 			Width = width;
 			Color = color;
 			Selected = false;
-		}
-		public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
+            m_guid = System.Guid.NewGuid().ToString();
+            m_arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(5, 5);
+        }
+        public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
 		{
 			P1 = P2 = point;
 			Width = layer.Width;
@@ -160,6 +165,7 @@ namespace Canvas.DrawTools
 			m_p1 = acopy.m_p1;
 			m_p2 = acopy.m_p2;
 			Selected = acopy.Selected;
+            m_guid = acopy.m_guid;
 		}
 		#region IDrawObject Members
 		public virtual string Id
@@ -202,9 +208,16 @@ namespace Canvas.DrawTools
 		{
 			Color color = Color;
 			Pen pen = canvas.CreatePen(color, Width);
-			pen.EndCap = LineCap.Round;
-			pen.StartCap = LineCap.Round;
-			canvas.DrawLine(canvas, pen, m_p1, m_p2);
+            m_useEndArrow = true;
+            if (m_useStartArrow)
+                pen.CustomStartCap = m_arrowCap;
+            else
+                pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+            if (m_useEndArrow)
+                pen.CustomEndCap = m_arrowCap;
+            else
+                pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+            canvas.DrawLine(canvas, pen, m_p1, m_p2);
 			if (Highlighted)
 				canvas.DrawLine(canvas, DrawUtils.SelectedPen, m_p1, m_p2);
 			if (Selected)
@@ -239,8 +252,10 @@ namespace Canvas.DrawTools
 			}
             if (snappoint is SnapPointBase && snappoint.Owner is RectBase)
             {
+                NodePointLine.ePoint pointType = HitUtil.Distance(point, m_p1) < HitUtil.Distance(point, m_p2) ?
+                    NodePointLine.ePoint.P1 : NodePointLine.ePoint.P2;
                 RectBase rect = snappoint.Owner as RectBase;
-                rect.AttachConnectionCrvNode(new NodePointLine(this, NodePointLine.ePoint.P2));
+                rect.AttachConnectionCrvNode(new NodePointLine(this, pointType));
             }
 			if (Control.ModifierKeys == Keys.Control)
 				point = HitUtil.OrthoPointD(m_p1, point, 45);
@@ -257,7 +272,43 @@ namespace Canvas.DrawTools
 		{
 			get { return m_p2; }
 		}
-		public INodePoint NodePoint(ICanvas canvas, UnitPoint point)
+        string m_guid = string.Empty;
+        public string Guid
+        {
+            get
+            {
+                return m_guid;
+            }
+        }
+
+        bool m_useStartArrow = false, m_useEndArrow = false;
+        public bool UseStartArrow
+        {
+            get
+            {
+                return m_useStartArrow;
+            }
+
+            set
+            {
+                m_useStartArrow = value;
+            }
+        }
+
+        public bool UseEndArrow
+        {
+            get
+            {
+                return m_useEndArrow;
+            }
+
+            set
+            {
+                m_useEndArrow = value;
+            }
+        }
+
+        public INodePoint NodePoint(ICanvas canvas, UnitPoint point)
 		{
             float thWidth = 0.0f;
             if (canvas != null)
@@ -372,6 +423,11 @@ namespace Canvas.DrawTools
 		}
 
         public RectangleF GetExactBoundingRect(ICanvas canvas)
+        {
+            throw new NotImplementedException();
+        }
+
+        public INodePoint GetNodePointFromPos(UnitPoint pt)
         {
             throw new NotImplementedException();
         }

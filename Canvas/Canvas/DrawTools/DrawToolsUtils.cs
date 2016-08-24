@@ -1,14 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
-using System.Xml;
 
 namespace Canvas.DrawTools
 {
-	public class DrawUtils
+    public class DrawUtils
 	{
 		static Pen m_selectedPen = null;
 		static public Pen SelectedPen
@@ -182,6 +178,7 @@ namespace Canvas.DrawTools
 			UseLayerWidth = acopy.UseLayerWidth;
 			Width = acopy.Width;
 			Color = acopy.Color;
+            Text = acopy.Text;
 		}
 
 	}

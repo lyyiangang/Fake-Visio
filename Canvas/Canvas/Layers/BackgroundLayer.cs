@@ -33,16 +33,16 @@ namespace Canvas
 		#region ICanvasLayer Members
 		public void Draw(ICanvas canvas, RectangleF unitrect)
 		{
-			RectangleF r = ScreenUtils.ToScreenNormalized(canvas, unitrect);
-			canvas.Graphics.FillRectangle(m_backgroundBrush, r);
-			StringFormat f = new StringFormat();
-            f.Alignment = StringAlignment.Center;
-			PointF centerpoint = new PointF(r.Width / 2, r.Height / 2);
-			canvas.Graphics.TranslateTransform(centerpoint.X, centerpoint.Y);
-			canvas.Graphics.RotateTransform(-15);
-			canvas.Graphics.DrawString("Jesper Kristiansen (2007)", m_font, m_brush, 0, 0, f);
-			canvas.Graphics.ResetTransform();
-		}
+            RectangleF r = ScreenUtils.ToScreenNormalized(canvas, unitrect);
+            canvas.Graphics.FillRectangle(m_backgroundBrush, r);
+            //StringFormat f = new StringFormat();
+            //f.Alignment = StringAlignment.Center;
+            //PointF centerpoint = new PointF(r.Width / 2, r.Height / 2);
+            //canvas.Graphics.TranslateTransform(centerpoint.X, centerpoint.Y);
+            //canvas.Graphics.RotateTransform(-15);
+            //canvas.Graphics.DrawString("Jesper Kristiansen (2007)", m_font, m_brush, 0, 0, f);
+            //canvas.Graphics.ResetTransform();
+        }
 		public PointF SnapPoint(PointF unitmousepoint)
 		{
 			return PointF.Empty;

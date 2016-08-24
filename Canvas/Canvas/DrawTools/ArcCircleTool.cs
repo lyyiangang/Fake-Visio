@@ -697,7 +697,16 @@ namespace Canvas.DrawTools
 		{
 			get { return AnglePoint(EndAngle); }
 		}
-		protected eArcType m_arcType = eArcType.type2point;
+
+        public string Guid
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        protected eArcType m_arcType = eArcType.type2point;
 		protected eCurrentPoint m_curPoint = eCurrentPoint.p1;
 		protected UnitPoint m_lastPoint;
 		protected UnitPoint m_p1;

@@ -182,7 +182,8 @@ namespace Canvas.DrawTools
             StrFormat.LineAlignment = StringAlignment.Center;
             StrBrush = Brushes.Black;
             FillShapeBrush = Brushes.LightBlue;
-                //Brushes.LemonChiffon;
+            m_guid = System.Guid.NewGuid().ToString();
+            //Brushes.LemonChiffon;
         }
         public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
         {
@@ -203,6 +204,8 @@ namespace Canvas.DrawTools
             P3 = acopy.P3;
             Selected = acopy.Selected;
             CurrentPoint = acopy.CurrentPoint;
+            m_guid = acopy.m_guid;
+            
            // acopy.m_allConnectionCrvNodes.AddRange(m_allConnectionCrvNodes);
             UpdateCenter();
         }
@@ -218,7 +221,7 @@ namespace Canvas.DrawTools
             //return a;
         }
         List<INodePoint> m_connectionCurveNodes = new List<INodePoint>();
-      public  void AddConnectionCurveNodes(INodePoint pt)
+        public void AddConnectionCurveNodes(INodePoint pt)
         {
             m_connectionCurveNodes.Add(pt);
         }
@@ -432,6 +435,7 @@ namespace Canvas.DrawTools
         {
             return ScreenUtils.GetRect(m_p1, m_p3, 0);
         }
+
        public struct ConnectionCrvNodeToRectBaseNodePair
         {
             public INodePoint connectionCrvNode;
@@ -443,6 +447,7 @@ namespace Canvas.DrawTools
             }
         };
 
+
         List<ConnectionCrvNodeToRectBaseNodePair> m_allConnectionCrvNodes = new List<ConnectionCrvNodeToRectBaseNodePair>();
         public void AttachConnectionCrvNode(INodePoint node)
         {
@@ -453,9 +458,26 @@ namespace Canvas.DrawTools
                 m_allConnectionCrvNodes.Add(new ConnectionCrvNodeToRectBaseNodePair(node, GetVertexIdFromPoint(node.GetPosition())));
         }
 
+        public void DeattachConnectionCrvNode(INodePoint node)
+        {
+            ConnectionCrvNodeToRectBaseNodePair existNode = m_allConnectionCrvNodes.Find(
+                curNode => curNode.connectionCrvNode.GetOriginal() == node.GetOriginal()
+                );
+            if (existNode.connectionCrvNode != null)
+                m_allConnectionCrvNodes.Remove(existNode);
+
+        }
         public List<ConnectionCrvNodeToRectBaseNodePair> AllConnectionCrvNodes
         {
             get { return m_allConnectionCrvNodes; }
+        }
+        string m_guid = string.Empty;
+        public string Guid
+        {
+            get
+            {
+                return m_guid;
+            }
         }
 
         eVertexId GetVertexIdFromPoint(UnitPoint pt)

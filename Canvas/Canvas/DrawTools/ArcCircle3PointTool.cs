@@ -722,7 +722,16 @@ namespace Canvas.DrawTools
 			get { return m_curPoint; }
 			set { m_curPoint = value; }
 		}
-		protected eCurrentPoint m_curPoint = eCurrentPoint.done;
+
+        public string Guid
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        protected eCurrentPoint m_curPoint = eCurrentPoint.done;
 		protected UnitPoint m_lastPoint = UnitPoint.Empty;
 	}
 }

@@ -118,6 +118,7 @@ namespace Canvas
 	public interface IDrawObject
 	{
 		string Id { get; }
+        string Guid { get; }
 		IDrawObject Clone();
 		bool PointInObject(ICanvas canvas, UnitPoint point);
 		bool ObjectInRectangle(ICanvas canvas, RectangleF rect, bool anyPoint);
