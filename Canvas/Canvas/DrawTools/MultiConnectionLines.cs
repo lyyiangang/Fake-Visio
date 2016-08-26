@@ -345,6 +345,11 @@ namespace Canvas.DrawTools
                     NodePointMultiConnectionLine.ePoint.P1 : NodePointMultiConnectionLine.ePoint.P2;
                 RectBase rect = snappoint.Owner as RectBase;
                 rect.AttachConnectionCrvNode(new NodePointMultiConnectionLine(this, pointType));
+                if (pointType == NodePointMultiConnectionLine.ePoint.P1)
+                    m_p1 = point;
+                else
+                    m_p2 = point;
+                return eDrawObjectMouseDown.Done;
             }
 
             OnMouseMove(canvas,point);

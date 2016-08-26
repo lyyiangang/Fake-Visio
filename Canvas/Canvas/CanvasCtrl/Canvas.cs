@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-
 namespace Canvas
 {
     public struct CanvasWrapper : ICanvas
@@ -392,6 +391,7 @@ namespace Canvas
 				m_staticDirty = true;
 			Invalidate(ScreenUtils.ConvertRect(rect));
 		}
+        //make static image dirty?
 		public void DoInvalidate(bool dostatic)
 		{
 			if (dostatic)
@@ -499,23 +499,26 @@ namespace Canvas
             if (m_commandType != eCommandType.select || m_model.SelectedCount < 1)
                 return;
             UnitPoint mousePt = ToUnit(new PointF(e.X, e.Y));
+            DrawTools.RectBase rectBase  = null;
             foreach (var curObj in m_model.SelectedObjects)
             {
-                DrawTools.RectBase rectBase = curObj as DrawTools.RectBase;
-                if (rectBase == null || !rectBase.PointInObject(m_canvaswrapper, mousePt))
-                    continue;
-                RectangleF rect = ScreenUtils.ToScreenNormalized(m_canvaswrapper, rectBase.GetExactBoundingRect(m_canvaswrapper));
-                rect.Inflate(1, 1);
-                m_rectBaseTextBox = new TextBox();
-                m_rectBaseTextBox.Tag = rectBase;
-                m_rectBaseTextBox.Multiline = true;
-                m_rectBaseTextBox.Font = new Font("Times New Roman", 15.0f);
-                m_rectBaseTextBox.Location = new Point((int)rect.Left, (int)rect.Top);
-                m_rectBaseTextBox.Size = new Size((int)rect.Width, (int)rect.Height);
-                m_rectBaseTextBox.Text = rectBase.Text;
-                Controls.Add(m_rectBaseTextBox);
-                break;
+                rectBase = curObj as DrawTools.RectBase;
+                if (rectBase != null && rectBase.PointInObject(m_canvaswrapper, mousePt))
+                    break ;
             }
+            if (rectBase == null)
+                return;
+            //lay down a textbox on the rect shape
+            RectangleF rect = ScreenUtils.ToScreenNormalized(m_canvaswrapper, rectBase.GetExactBoundingRect(m_canvaswrapper));
+            rect.Inflate(1, 1);
+            m_rectBaseTextBox = new TextBox();
+            m_rectBaseTextBox.Tag = rectBase;
+            m_rectBaseTextBox.Multiline = true;
+            m_rectBaseTextBox.Font = new Font("Times New Roman", 15.0f);
+            m_rectBaseTextBox.Location = new Point((int)rect.Left, (int)rect.Top);
+            m_rectBaseTextBox.Size = new Size((int)rect.Width, (int)rect.Height);
+            m_rectBaseTextBox.Text = rectBase.Text;
+            Controls.Add(m_rectBaseTextBox);
             base.OnMouseDoubleClick(e);
         }
         protected override void OnMouseDown(MouseEventArgs e)
@@ -525,7 +528,9 @@ namespace Canvas
                 ((DrawTools.RectBase)m_rectBaseTextBox.Tag).Text = m_rectBaseTextBox.Text;
                 ((DrawTools.RectBase)m_rectBaseTextBox.Tag).Selected = false;
                 Controls.Remove(m_rectBaseTextBox);
+                m_model.ClearSelectedObjects();
                 m_rectBaseTextBox = null;
+                DoInvalidate(true);
                 return;
             }
             if (e.Button == MouseButtons.Middle)

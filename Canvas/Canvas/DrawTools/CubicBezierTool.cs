@@ -340,6 +340,12 @@ namespace Canvas.DrawTools
                     NodePointCubicBezier.ePoint.P1 : NodePointCubicBezier.ePoint.P2;
                 RectBase rect = snappoint.Owner as RectBase;
                 rect.AttachConnectionCrvNode(new NodePointCubicBezier(this, pointType));
+                if (pointType == NodePointCubicBezier.ePoint.P1)
+                    m_p1 = point;
+                else
+                    m_p2 = point;
+                UpdateCtrlPts();
+                return eDrawObjectMouseDown.Done;
             }
             if (Control.ModifierKeys == Keys.Control)
                 point = HitUtil.OrthoPointD(m_p1, point, 45);

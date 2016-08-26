@@ -841,13 +841,13 @@ namespace Canvas
 			}
 			// update selected nodes
 			m_canvas.Model.MoveNodes(mouseunitpoint, m_nodes);
-            MoveReferenceNodesOfRect(m_nodes, snapPt);
+            MoveReferenceNodesOfRect(m_nodes, snapPt, mouseunitpoint);
 			m_nodes.Clear();
 			handled = true;
 			m_canvas.CanvasCtrl.DoInvalidate(true);
 			return handled;
 		}
-        void MoveReferenceNodesOfRect(List<INodePoint> selectedNodes, ISnapPoint snapPt)
+        void MoveReferenceNodesOfRect(List<INodePoint> selectedNodes, ISnapPoint snapPt, UnitPoint mouseunitpoint)
         {
             List<INodePoint> allConnectionCrvNodes = new List<INodePoint>();
             List<UnitPoint> allNewPos = new List<UnitPoint>();
@@ -868,10 +868,11 @@ namespace Canvas
                         allNewPos.Add(rectBase.GetPointFromVertexId(curConnectionCrvNode.rectNodeId));
                     }
                 }
-                if(connectionCrv!=null && snapPt !=null)
+                
+                if (connectionCrv!=null && snapPt!=null && snapPt.Owner is DrawTools.RectBase)
                 {
                     IDrawObject drawObj = connectionCrv as IDrawObject;
-                    drawObj.OnMouseDown(m_canvas, snapPt.SnapPoint, snapPt);
+                    drawObj.OnMouseDown(m_canvas, mouseunitpoint, snapPt);
                 }
             }
             if (allNewPos.Count < 1)

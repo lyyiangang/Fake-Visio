@@ -250,17 +250,23 @@ namespace Canvas.DrawTools
 				m_p2 = HitUtil.NearestPointOnCircle(src.Center, src.Radius, m_p1, 0);
 				return eDrawObjectMouseDown.DoneRepeat;
 			}
-            if (snappoint is SnapPointBase && snappoint.Owner is RectBase)
+
+            if (snappoint is SnapPointBase && snappoint.Owner!=null)
             {
                 NodePointLine.ePoint pointType = HitUtil.Distance(point, m_p1) < HitUtil.Distance(point, m_p2) ?
                     NodePointLine.ePoint.P1 : NodePointLine.ePoint.P2;
                 RectBase rect = snappoint.Owner as RectBase;
                 rect.AttachConnectionCrvNode(new NodePointLine(this, pointType));
+                if (pointType == NodePointLine.ePoint.P1)
+                    m_p1 = point;
+                else
+                    m_p2 = point;
+                return eDrawObjectMouseDown.DoneRepeat;
             }
-			if (Control.ModifierKeys == Keys.Control)
-				point = HitUtil.OrthoPointD(m_p1, point, 45);
-			m_p2 = point;
-			return eDrawObjectMouseDown.DoneRepeat;
+            if (Control.ModifierKeys == Keys.Control)
+                point = HitUtil.OrthoPointD(m_p1, point, 45);
+            m_p2 = point;
+            return eDrawObjectMouseDown.DoneRepeat;
 		}
 		public void OnMouseUp(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)
 		{
