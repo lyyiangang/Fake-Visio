@@ -253,7 +253,7 @@ namespace Canvas.DrawTools
 
             if (snappoint is SnapPointBase && snappoint.Owner!=null)
             {
-                NodePointLine.ePoint pointType = HitUtil.Distance(point, m_p1) < HitUtil.Distance(point, m_p2) ?
+                NodePointLine.ePoint pointType = HitUtil.Distance(point, m_p1) <= HitUtil.Distance(point, m_p2) ?
                     NodePointLine.ePoint.P1 : NodePointLine.ePoint.P2;
                 RectBase rect = snappoint.Owner as RectBase;
                 rect.AttachConnectionCrvNode(new NodePointLine(this, pointType));

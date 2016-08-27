@@ -456,6 +456,7 @@ namespace Canvas
 			m_commandType = eCommandType.select;
 			m_snappoint = null;
 		}
+
 		protected virtual void HandleMouseDownWhenDrawing(UnitPoint mouseunitpoint, ISnapPoint snappoint)
 		{
 			if (m_commandType == eCommandType.draw)
@@ -463,7 +464,7 @@ namespace Canvas
 				if (m_newObject == null)
 				{
 					m_newObject = m_model.CreateObject(m_drawObjectId, mouseunitpoint, snappoint);
-					DoInvalidate(false, m_newObject.GetBoundingRect(m_canvaswrapper));
+                    DoInvalidate(false, m_newObject.GetBoundingRect(m_canvaswrapper));
 				}
 				else
 				{
@@ -493,6 +494,7 @@ namespace Canvas
 				}
 			}
 		}
+
         TextBox m_rectBaseTextBox = null;
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
