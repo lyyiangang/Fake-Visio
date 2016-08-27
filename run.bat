@@ -1,0 +1,1 @@
+%cd%\Canvas\Canvas.sln

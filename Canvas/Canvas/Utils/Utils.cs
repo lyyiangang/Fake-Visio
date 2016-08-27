@@ -157,6 +157,21 @@ namespace Canvas
 	}
 	public class HitUtil
 	{
+        public static void ActivateSymbolAtPoint(ICanvas canvas,List<IDrawObject> selectedObjs, UnitPoint hitPoint)
+        {
+            foreach(var obj in selectedObjs)
+            {
+                DrawTools.RectBase rectBase = obj as DrawTools.RectBase;
+                if (rectBase == null)
+                    continue;
+                List<DrawTools.Symbol> allSymbols = rectBase.GetAllSymbol();
+                foreach(var symbol in allSymbols)
+                {
+                    if (symbol.PointInObject(canvas, hitPoint))
+                        symbol.OnClick();
+                }
+            }
+        }
 		public static bool PointInPoint(UnitPoint p, UnitPoint tp, float tpThresHold)
 		{
 			if (p.IsEmpty || tp.IsEmpty)

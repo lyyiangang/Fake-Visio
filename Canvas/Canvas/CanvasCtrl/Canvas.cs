@@ -596,6 +596,7 @@ namespace Canvas
 					// else use mouse point
 					UnitPoint mousepoint = ToUnit(new PointF(e.X, e.Y));
 					hitlist = m_model.GetHitObjects(m_canvaswrapper, mousepoint);
+                    HitUtil.ActivateSymbolAtPoint(m_canvaswrapper, hitlist, mousepoint);
 				}
 				m_selection = null;
 			}

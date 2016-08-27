@@ -101,15 +101,87 @@ namespace Canvas.DrawTools
         #endregion
     }
 
-     class RectBase : DrawObjectBase, IDrawObject, ISerialize
+    class Symbol
+    {
+        string m_txt = string.Empty;
+        RectangleF m_boundingBox = RectangleF.Empty;
+        IDrawObject m_owner = null;
+        Font m_font;
+        StringFormat m_strFormat;
+        Brush m_strBrush, m_fillBrush;
+        float m_relativeOffSetToLeft, m_relativeOffSetToTop;
+        public delegate void DelegateClick(Symbol sender);
+        public event DelegateClick Click = null;
+
+        public Symbol(IDrawObject owner, string txt, float relativeOffsetToLeft, float relativeOffSetToTop)
+        {
+            m_owner = owner;
+            m_txt = txt;
+            m_relativeOffSetToLeft = relativeOffsetToLeft;
+            m_relativeOffSetToTop = relativeOffSetToTop;
+            m_font = new Font("Calibri", 20, FontStyle.Regular, GraphicsUnit.Point);
+            m_strFormat = new StringFormat();
+            m_strFormat.Alignment = StringAlignment.Center;
+            m_strFormat.LineAlignment = StringAlignment.Center;
+            m_strBrush = Brushes.Black;
+            m_fillBrush = Brushes.Red;
+        }
+
+        public string Text { get { return m_txt; } }
+
+        public IDrawObject Owner { get { return m_owner; } }
+
+        public void Draw(ICanvas canvas)
+        {
+            if (m_txt.Length < 1)
+                return;
+            UpdateSymbol(canvas);
+            if (!m_boundingBox.IsEmpty)
+            {
+                float penWidth = 0.02f;
+                Pen pen = canvas.CreatePen(Color.Black, penWidth);
+                UnitPoint ptTopLeft = new UnitPoint(m_boundingBox.Left, m_boundingBox.Bottom);
+                canvas.FillRectangle(canvas, m_fillBrush, ptTopLeft,
+                    m_boundingBox.Width, m_boundingBox.Height);
+                canvas.DrawString(canvas, m_txt, m_font, m_strBrush, m_boundingBox, m_strFormat);
+                canvas.DrawRectangle(canvas, pen, ptTopLeft, m_boundingBox.Width, m_boundingBox.Height);
+            }
+        }
+
+        public bool PointInObject(ICanvas canvas, UnitPoint point)
+        {
+            bool contain= m_boundingBox.Contains(point.Point);
+            return contain;
+        }
+
+        void UpdateSymbol(ICanvas canvas)
+        {
+            RectangleF ownerRect = m_owner.GetBoundingRect(canvas);
+            const float boxSizeScale = 0.05f;
+            float radius = ownerRect.Height * boxSizeScale;
+            m_boundingBox.X = ownerRect.Left + ownerRect.Width * m_relativeOffSetToLeft;
+            m_boundingBox.Y = ownerRect.Bottom - ownerRect.Height * m_relativeOffSetToTop;
+            m_boundingBox.Width = 0.0f;
+            m_boundingBox.Height = 0.0f;
+            m_boundingBox.Inflate(radius, radius);
+        }
+
+        public void OnClick()
+        {
+            if (Click != null)
+                Click(this);
+        }
+    }
+
+    class RectBase : DrawObjectBase, IDrawObject, ISerialize
     {
         //p1------------------------p2
         //|                         |
         //|                         |
         //|                         |
         //p4------------------------p3
-       protected UnitPoint m_center;
-       protected UnitPoint m_p1, m_p3/*,m_p2,m_p4*/;
+        protected UnitPoint m_center;
+        protected UnitPoint m_p1, m_p3/*,m_p2,m_p4*/;
         protected static int ThresholdPixel = 6;
         eCurrentPoint m_curPoint = eCurrentPoint.center;
 
@@ -162,7 +234,7 @@ namespace Canvas.DrawTools
 
         public enum eVertexId
         {
-            None=0,
+            None = 0,
             LeftTopCorner = 1,
             RightTopCorner,
             LeftBottomCorner,
@@ -173,10 +245,11 @@ namespace Canvas.DrawTools
             LeftEdgeMidPoint,
             RigthEdgeMidPoint,
         }
+
         public RectBase()
         {
             CurrentPoint = eCurrentPoint.p1;
-            Text = string.Empty;
+            Text = "Double click me to add text!";
             Font = new Font("Arial", 12, FontStyle.Regular, GraphicsUnit.Point);
             StrFormat = new StringFormat();
             StrFormat.Alignment = StringAlignment.Center;
@@ -184,7 +257,6 @@ namespace Canvas.DrawTools
             StrBrush = Brushes.Black;
             FillShapeBrush = Brushes.LightBlue;
             m_guid = System.Guid.NewGuid().ToString();
-            //Brushes.LemonChiffon;
         }
         public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
         {
@@ -206,7 +278,7 @@ namespace Canvas.DrawTools
             Selected = acopy.Selected;
             CurrentPoint = acopy.CurrentPoint;
             m_guid = acopy.m_guid;
-            
+
             UpdateCenter();
         }
         public string Id
@@ -407,7 +479,7 @@ namespace Canvas.DrawTools
         }
         #region ISerialize
         public virtual void GetObjectData(XmlWriter wr)
-        {//被重载
+        {
             wr.WriteStartElement(Id);
             XmlUtil.WriteProperties(this, wr);
             wr.WriteEndElement();
@@ -426,7 +498,7 @@ namespace Canvas.DrawTools
             return ScreenUtils.GetRect(m_p1, m_p3, 0);
         }
 
-       public struct ConnectionCrvNodeToRectBaseNodePair
+        public struct ConnectionCrvNodeToRectBaseNodePair
         {
             public INodePoint connectionCrvNode;
             public eVertexId rectNodeId;
@@ -457,10 +529,12 @@ namespace Canvas.DrawTools
                 m_allConnectionCrvNodes.Remove(existNode);
 
         }
+
         public List<ConnectionCrvNodeToRectBaseNodePair> AllConnectionCrvNodes
         {
             get { return m_allConnectionCrvNodes; }
         }
+
         string m_guid = string.Empty;
         public string Guid
         {
@@ -470,7 +544,7 @@ namespace Canvas.DrawTools
             }
         }
 
-      public  eVertexId GetVertexIdFromPoint(UnitPoint pt)
+        public eVertexId GetVertexIdFromPoint(UnitPoint pt)
         {
             float threshold = 1e-10f;
             float halfWidth, halfHeight;
@@ -498,7 +572,7 @@ namespace Canvas.DrawTools
             return eVertexId.None;
         }
 
-       public UnitPoint GetPointFromVertexId(eVertexId vId)
+        public UnitPoint GetPointFromVertexId(eVertexId vId)
         {
             UnitPoint pt = UnitPoint.Empty;
             float halfWidth, halfHeight;
@@ -530,9 +604,10 @@ namespace Canvas.DrawTools
             return pt;
         }
 
-        public virtual void OnMouseDoubleClick(ICanvas canvas, MouseEventArgs e)
+        public virtual List<Symbol> GetAllSymbol()
         {
-
+            List<Symbol> allSymbols = new List<Symbol>();
+            return allSymbols;
         }
     }
 }
