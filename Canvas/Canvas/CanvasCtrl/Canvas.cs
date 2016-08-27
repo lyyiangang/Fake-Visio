@@ -293,62 +293,7 @@ namespace Canvas
 			ClearPens();
 			CommonTools.Tracing.EndTrack(Program.TracePaint, "OnPaint complete");
 		}
-        void PlotPoint(Graphics g, Point pt)
-        {
-            Rectangle rect = new Rectangle(pt.X,pt.Y,0,0);
-            rect.Inflate(2, 2);
-            g.DrawRectangle(Pens.Green, rect);
-        }
-        void TestBezier(Graphics g)
-        {
-            //-----------------------------------------------------------------------
-            int scale = 30;
-            Point start = new Point(100, 100);
-            Point control1 = new Point(100+scale, 100);
-            Point control2 = new Point(150-scale, 150);
-            Point end1 = new Point(150,150);
-            Point[] bezierPoints =
-                     {
-                 start, control1, control2, end1
-             };
 
-            g.DrawBeziers(Pens.Red, bezierPoints);
-            //foreach(var pt in bezierPoints)
-            //    PlotPoint(g,pt);
-           // PlotBezierCrv(g, bezierPoints);
-            //-----------------------------------------------------------------------
-
-        }
-
-        void PlotBezierCrv(Graphics g, Point[] ctrlPts)
-        {
-            CubicBezierCurveCurve bezierCrv = new CubicBezierCurveCurve(new float[2] { ctrlPts[0].X, ctrlPts[0].Y },
-                                        new float[2] { ctrlPts[1].X, ctrlPts[1].Y },
-                                        new float[2] { ctrlPts[2].X, ctrlPts[2].Y },
-                                        new float[2] { ctrlPts[3].X, ctrlPts[3].Y });
-            //{
-            //    //check point on curve
-            //    float[] pos = { 0, 0 };
-            //    Point ptCur = new Point();
-            //    int nSegments = 20;
-            //    float stepSize = 1.0f / nSegments;
-            //    for (int ii = 1; ii < nSegments + 1; ++ii)
-            //    {
-            //        bezierCrv.Eval(stepSize * ii, ref pos[0], ref pos[1]);
-            //        ptCur.X = (int)pos[0];
-            //        ptCur.Y = (int)pos[1];
-            //        PlotPoint(g, ptCur);
-            //    }
-            //}
-            //check the project function
-            float t = 0.0f, squareDistance = 0.0f ;
-            float[] posOnCrv = { 0.0f, 0.0f };
-            Point cursorClientPt = this.PointToClient(Control.MousePosition);
-            bezierCrv.ProjectPointToCurve(new float[2] { cursorClientPt.X, cursorClientPt.Y }, ref t, ref posOnCrv, ref squareDistance);
-            Point Q = new Point((int)posOnCrv[0], (int)posOnCrv[1]);
-            g.DrawLine(Pens.Red, Q, cursorClientPt);
-
-        }
         void RepaintStatic(Rectangle r)
 		{
 			if (m_staticImage == null)
@@ -473,15 +418,19 @@ namespace Canvas
 						switch (result)
 						{
 							case eDrawObjectMouseDown.Done:
-								m_model.AddObject(m_model.ActiveLayer, m_newObject);
+								IDrawObject addedObj= m_model.AddObject(m_model.ActiveLayer, m_newObject);
+                                if(m_newObject is IConnectionCurve)
+                                    m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
 								m_newObject = null;
 								DoInvalidate(true);
 								break;
 							case eDrawObjectMouseDown.DoneRepeat:
-								m_model.AddObject(m_model.ActiveLayer, m_newObject);
-								m_newObject = m_model.CreateObject(m_newObject.Id, m_newObject.RepeatStartingPoint, null);
-								DoInvalidate(true);
-								break;
+                                addedObj = m_model.AddObject(m_model.ActiveLayer, m_newObject);
+                                if (addedObj is IConnectionCurve)
+                                    m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
+                                m_newObject = m_model.CreateObject(m_newObject.Id, m_newObject.RepeatStartingPoint, null);
+                                DoInvalidate(true);
+                                break;
 							case eDrawObjectMouseDown.Continue:
 								break;
                             case eDrawObjectMouseDown.Cancel:
@@ -493,6 +442,7 @@ namespace Canvas
 				}
 			}
 		}
+
         TextBox m_rectBaseTextBox = null;
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
@@ -519,8 +469,11 @@ namespace Canvas
             m_rectBaseTextBox.Size = new Size((int)rect.Width, (int)rect.Height);
             m_rectBaseTextBox.Text = rectBase.Text;
             Controls.Add(m_rectBaseTextBox);
+            m_rectBaseTextBox.Focus();
+            m_rectBaseTextBox.SelectAll();
             base.OnMouseDoubleClick(e);
         }
+
         protected override void OnMouseDown(MouseEventArgs e)
 		{
             if(m_rectBaseTextBox!=null && m_rectBaseTextBox.Tag != null)

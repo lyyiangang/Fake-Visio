@@ -162,6 +162,7 @@ namespace Canvas.DrawTools
 
         public enum eVertexId
         {
+            None=0,
             LeftTopCorner = 1,
             RightTopCorner,
             LeftBottomCorner,
@@ -206,7 +207,6 @@ namespace Canvas.DrawTools
             CurrentPoint = acopy.CurrentPoint;
             m_guid = acopy.m_guid;
             
-           // acopy.m_allConnectionCrvNodes.AddRange(m_allConnectionCrvNodes);
             UpdateCenter();
         }
         public string Id
@@ -216,32 +216,20 @@ namespace Canvas.DrawTools
         public virtual IDrawObject Clone()
         {
             throw new Exception();
-            //RectBase a = new RectBase();
-            //a.Copy(this);
-            //return a;
         }
-        List<INodePoint> m_connectionCurveNodes = new List<INodePoint>();
-        public void AddConnectionCurveNodes(INodePoint pt)
-        {
-            m_connectionCurveNodes.Add(pt);
-        }
-        public List<INodePoint> GetConnectionCurveNodes()
-        {
-            return m_connectionCurveNodes;
-        }
+
         void UpdateCenter()
         {
             m_center.X = (m_p1.X + m_p3.X) * 0.5f;
             m_center.Y = (m_p1.Y + m_p3.Y) * 0.5f;
 
-            //if (m_allConnectionCrvNodes.Count < 1)
-            //    return;
-            //foreach (var curItme in m_allConnectionCrvNodes)
-            //{
-            //    curItme.connectionCrvNode.SetPosition(GetPointFromVertexId(curItme.rectNodeId));
-            //    curItme.connectionCrvNode.Finish();
-            //}
+            foreach (var curItme in m_allConnectionCrvNodes)
+            {
+                curItme.connectionCrvNode.SetPosition(GetPointFromVertexId(curItme.rectNodeId));
+                curItme.connectionCrvNode.Finish();
+            }
         }
+
         public virtual void Draw(ICanvas canvas, RectangleF unitrect)
         {
             throw new System.Exception();
@@ -298,15 +286,15 @@ namespace Canvas.DrawTools
         }
         public bool ObjectInRectangle(ICanvas canvas, RectangleF rect, bool anyPoint)
         {
-            float halfWidth, halfHeight;
-            GetHalfWidthAndHeight(out halfWidth, out halfHeight);
-            RectangleF shapeRect = new RectangleF((float)m_center.X, (float)m_center.Y, 0, 0);
-            shapeRect.Inflate(halfWidth, halfHeight);
+            //float halfWidth, halfHeight;
+            //GetHalfWidthAndHeight(out halfWidth, out halfHeight);
+            //RectangleF shapeRect = new RectangleF((float)m_center.X, (float)m_center.Y, 0, 0);
+            //shapeRect.Inflate(halfWidth, halfHeight);
+            RectangleF boundingrect = GetBoundingRect(canvas);
             if (anyPoint)
             {
-                return rect.IntersectsWith(shapeRect);
+                return rect.IntersectsWith(boundingrect);
             }
-            RectangleF boundingrect = GetBoundingRect(canvas);
             return rect.Contains(boundingrect);
         }
         protected void GetHalfWidthAndHeight(out float halfWidth, out float halfHeight)
@@ -414,6 +402,8 @@ namespace Canvas.DrawTools
             m_p1.Y += offset.Y;
             m_p3.X += offset.X;
             m_p3.Y += offset.Y;
+
+            UpdateCenter();
         }
         #region ISerialize
         public virtual void GetObjectData(XmlWriter wr)
@@ -480,7 +470,7 @@ namespace Canvas.DrawTools
             }
         }
 
-        eVertexId GetVertexIdFromPoint(UnitPoint pt)
+      public  eVertexId GetVertexIdFromPoint(UnitPoint pt)
         {
             float threshold = 1e-10f;
             float halfWidth, halfHeight;
@@ -505,7 +495,7 @@ namespace Canvas.DrawTools
             ptemp = new UnitPoint(Center.X + halfWidth, Center.Y);
             if (HitUtil.CircleHitPoint(ptemp, threshold, pt))
                 return eVertexId.RigthEdgeMidPoint;
-            throw new Exception("not match");
+            return eVertexId.None;
         }
 
        public UnitPoint GetPointFromVertexId(eVertexId vId)

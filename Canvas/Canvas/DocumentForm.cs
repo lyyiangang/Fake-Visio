@@ -57,7 +57,7 @@ namespace Canvas
 			SetupMenuItems();
 			SetupDrawTools();
 			SetupLayerToolstrip();
-			SetupEditTools();
+			//SetupEditTools();
 			UpdateLayerUI();
 
 			MenuStrip menuitem = new MenuStrip();
@@ -156,62 +156,62 @@ namespace Canvas
 			mmitem.Tag = "singleline";
 			m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.LineEdit(true));
 
-			mmitem = m_menuItems.GetItem("Circle2P");
-			mmitem.Text = "Circle 2P";
-			mmitem.ToolTipText = "Circle 2 point";
-			mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Circle2P);
-			mmitem.Click += new EventHandler(OnToolSelect);
-			mmitem.Tag = "circle2P";
-			m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Circle(DrawTools.Arc.eArcType.type2point));
+			//mmitem = m_menuItems.GetItem("Circle2P");
+			//mmitem.Text = "Circle 2P";
+			//mmitem.ToolTipText = "Circle 2 point";
+			//mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Circle2P);
+			//mmitem.Click += new EventHandler(OnToolSelect);
+			//mmitem.Tag = "circle2P";
+			//m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Circle(DrawTools.Arc.eArcType.type2point));
 
-			mmitem = m_menuItems.GetItem("CircleCR");
-			mmitem.Text = "Circle CR";
-			mmitem.ToolTipText = "Circle Center-Radius";
-			mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.CircleCR);
-			mmitem.Click += new EventHandler(OnToolSelect);
-		//	mmitem.SingleKey = Keys.C;
-			mmitem.ShortcutKeyDisplayString = "C";
-			mmitem.Tag = "circleCR";
-			m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Circle(DrawTools.Arc.eArcType.typeCenterRadius));
+		//	mmitem = m_menuItems.GetItem("CircleCR");
+		//	mmitem.Text = "Circle CR";
+		//	mmitem.ToolTipText = "Circle Center-Radius";
+		//	mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.CircleCR);
+		//	mmitem.Click += new EventHandler(OnToolSelect);
+		////	mmitem.SingleKey = Keys.C;
+		//	mmitem.ShortcutKeyDisplayString = "C";
+		//	mmitem.Tag = "circleCR";
+		//	m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Circle(DrawTools.Arc.eArcType.typeCenterRadius));
 
-			mmitem = m_menuItems.GetItem("Arc2P");
-			mmitem.Text = "Arc 2P";
-			mmitem.ToolTipText = "Arc 2 point";
-			mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Arc2P);
-			mmitem.Click += new EventHandler(OnToolSelect);
-			mmitem.Tag = "arc2P";
-			m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Arc(DrawTools.Arc.eArcType.type2point));
+		//	mmitem = m_menuItems.GetItem("Arc2P");
+		//	mmitem.Text = "Arc 2P";
+		//	mmitem.ToolTipText = "Arc 2 point";
+		//	mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Arc2P);
+		//	mmitem.Click += new EventHandler(OnToolSelect);
+		//	mmitem.Tag = "arc2P";
+		//	m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Arc(DrawTools.Arc.eArcType.type2point));
 
-			mmitem = m_menuItems.GetItem("Arc3P132");
-			mmitem.Text = "Arc 3P";
-			mmitem.ToolTipText = "Arc 3 point (Start / End / Include)";
-			mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Arc3P132);
-			mmitem.Click += new EventHandler(OnToolSelect);
-			mmitem.Tag = "arc3P132";
-			m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Arc3Point(DrawTools.Arc3Point.eArcType.kArc3P132));
+		//	mmitem = m_menuItems.GetItem("Arc3P132");
+		//	mmitem.Text = "Arc 3P";
+		//	mmitem.ToolTipText = "Arc 3 point (Start / End / Include)";
+		//	mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Arc3P132);
+		//	mmitem.Click += new EventHandler(OnToolSelect);
+		//	mmitem.Tag = "arc3P132";
+		//	m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Arc3Point(DrawTools.Arc3Point.eArcType.kArc3P132));
 
-			mmitem = m_menuItems.GetItem("Arc3P123");
-			mmitem.Text = "Arc 3P";
-			mmitem.ToolTipText = "Arc 3 point (Start / Include / End)";
-			mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Arc3P123);
-			mmitem.Click += new EventHandler(OnToolSelect);
-			mmitem.Tag = "arc3P123";
-			m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Arc3Point(DrawTools.Arc3Point.eArcType.kArc3P123));
+		//	mmitem = m_menuItems.GetItem("Arc3P123");
+		//	mmitem.Text = "Arc 3P";
+		//	mmitem.ToolTipText = "Arc 3 point (Start / Include / End)";
+		//	mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Arc3P123);
+		//	mmitem.Click += new EventHandler(OnToolSelect);
+		//	mmitem.Tag = "arc3P123";
+		//	m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Arc3Point(DrawTools.Arc3Point.eArcType.kArc3P123));
 
-			mmitem = m_menuItems.GetItem("ArcCR");
-			mmitem.Text = "Arc CR";
-			mmitem.ToolTipText = "Arc Center-Radius";
-			mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.ArcCR);
-			mmitem.Click += new EventHandler(OnToolSelect);
-			mmitem.SingleKey = Keys.A;
-			mmitem.ShortcutKeyDisplayString = "A";
-			mmitem.Tag = "arcCR";
-			m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Arc(DrawTools.Arc.eArcType.typeCenterRadius));
+		//	mmitem = m_menuItems.GetItem("ArcCR");
+		//	mmitem.Text = "Arc CR";
+		//	mmitem.ToolTipText = "Arc Center-Radius";
+		//	mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.ArcCR);
+		//	mmitem.Click += new EventHandler(OnToolSelect);
+		//	mmitem.SingleKey = Keys.A;
+		//	mmitem.ShortcutKeyDisplayString = "A";
+		//	mmitem.Tag = "arcCR";
+		//	m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.Arc(DrawTools.Arc.eArcType.typeCenterRadius));
 
             mmitem = m_menuItems.GetItem("Bezier");
             mmitem.Text = "Bezier";
             mmitem.ToolTipText = "Bezier curve";
-            mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.ArcCR);
+            mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.BezierCurve);
             mmitem.Click += new EventHandler(OnToolSelect);
             mmitem.Tag = "cubicBezier";
             m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.CubicBezier());
@@ -219,7 +219,7 @@ namespace Canvas
             mmitem = m_menuItems.GetItem("Oval");
             mmitem.Text = "Oval";
             mmitem.ToolTipText = "Oval";
-            mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.ArcCR);
+            mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Oval);
             mmitem.Click += new EventHandler(OnToolSelect);
             mmitem.Tag = "oval";
             m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.OvalShape());
@@ -227,7 +227,7 @@ namespace Canvas
             mmitem = m_menuItems.GetItem("Rectangle");
             mmitem.Text = "Rectangle";
             mmitem.ToolTipText = "Rectangle";
-            mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.ArcCR);
+            mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.Rectangle);
             mmitem.Click += new EventHandler(OnToolSelect);
             mmitem.Tag = "rectangle";
             m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.RectangleShape());
@@ -235,23 +235,23 @@ namespace Canvas
             mmitem = m_menuItems.GetItem("MultiConnectionLines");
             mmitem.Text = "MultiConnectionLines";
             mmitem.ToolTipText = "MultiConnectionLines";
-            mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.ArcCR);
+            mmitem.Image = DrawToolsImages16x16.Image(DrawToolsImages16x16.eIndexes.MultiConnectionCurve);
             mmitem.Click += new EventHandler(OnToolSelect);
             mmitem.Tag = "multiConnectionLines";
             m_data.AddDrawTool(mmitem.Tag.ToString(), new DrawTools.MultiConnectionLines());
 
             ToolStrip strip = m_menuItems.GetStrip("draw");
-			strip.Items.Add(m_menuItems.GetItem("Lines").CreateButton());
-			strip.Items.Add(m_menuItems.GetItem("Circle2P").CreateButton());
-			strip.Items.Add(m_menuItems.GetItem("CircleCR").CreateButton());
-			strip.Items.Add(m_menuItems.GetItem("Arc2P").CreateButton());
+			strip.Items.Add(m_menuItems.GetItem("Line").CreateButton());
+			//strip.Items.Add(m_menuItems.GetItem("Circle2P").CreateButton());
+			//strip.Items.Add(m_menuItems.GetItem("CircleCR").CreateButton());
+			//strip.Items.Add(m_menuItems.GetItem("Arc2P").CreateButton());
 			strip.Items.Add(m_menuItems.GetItem("Bezier").CreateButton());
 			strip.Items.Add(m_menuItems.GetItem("Oval").CreateButton());
 			strip.Items.Add(m_menuItems.GetItem("Rectangle").CreateButton());
 			strip.Items.Add(m_menuItems.GetItem("MultiConnectionLines").CreateButton());
-            strip.Items.Add(m_menuItems.GetItem("ArcCR").CreateButton());
-            strip.Items.Add(m_menuItems.GetItem("Arc3P132").CreateButton());
-			strip.Items.Add(m_menuItems.GetItem("Arc3P123").CreateButton());
+   //         strip.Items.Add(m_menuItems.GetItem("ArcCR").CreateButton());
+   //         strip.Items.Add(m_menuItems.GetItem("Arc3P132").CreateButton());
+			//strip.Items.Add(m_menuItems.GetItem("Arc3P123").CreateButton());
 
 			ToolStripMenuItem menu = m_menuItems.GetMenuStrip("draw");
 			menu.MergeAction = MergeAction.Insert;
@@ -259,16 +259,16 @@ namespace Canvas
 			menu.Text = "Draw &Tools";
 			menu.DropDownItems.Add(m_menuItems.GetItem("Lines").CreateMenuItem());
 			menu.DropDownItems.Add(m_menuItems.GetItem("Line").CreateMenuItem());
-			menu.DropDownItems.Add(m_menuItems.GetItem("Circle2P").CreateMenuItem());
-			menu.DropDownItems.Add(m_menuItems.GetItem("CircleCR").CreateMenuItem());
-			menu.DropDownItems.Add(m_menuItems.GetItem("Arc2P").CreateMenuItem());
-			menu.DropDownItems.Add(m_menuItems.GetItem("ArcCR").CreateMenuItem());
+			//menu.DropDownItems.Add(m_menuItems.GetItem("Circle2P").CreateMenuItem());
+			//menu.DropDownItems.Add(m_menuItems.GetItem("CircleCR").CreateMenuItem());
+			//menu.DropDownItems.Add(m_menuItems.GetItem("Arc2P").CreateMenuItem());
+			//menu.DropDownItems.Add(m_menuItems.GetItem("ArcCR").CreateMenuItem());
 			menu.DropDownItems.Add(m_menuItems.GetItem("Bezier").CreateMenuItem());
 			menu.DropDownItems.Add(m_menuItems.GetItem("Oval").CreateMenuItem());
 			menu.DropDownItems.Add(m_menuItems.GetItem("Rectangle").CreateMenuItem());
 			menu.DropDownItems.Add(m_menuItems.GetItem("MultiConnectionLines").CreateMenuItem());
-            menu.DropDownItems.Add(m_menuItems.GetItem("Arc3P132").CreateMenuItem());
-			menu.DropDownItems.Add(m_menuItems.GetItem("Arc3P123").CreateMenuItem());
+   //         menu.DropDownItems.Add(m_menuItems.GetItem("Arc3P132").CreateMenuItem());
+			//menu.DropDownItems.Add(m_menuItems.GetItem("Arc3P123").CreateMenuItem());
 		}
 		void SetupEditTools()
 		{

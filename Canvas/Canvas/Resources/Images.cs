@@ -60,6 +60,10 @@ namespace Canvas
 			Arc2P,
 			Arc3P132,
 			Arc3P123,
+            Rectangle,
+            Oval,
+            BezierCurve,
+            MultiConnectionCurve,
 		}
 		static public ImageList ImageList()
 		{
