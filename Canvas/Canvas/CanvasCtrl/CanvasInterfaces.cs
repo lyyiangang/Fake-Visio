@@ -10,6 +10,8 @@ namespace Canvas
     {
         bool UseStartArrow { get; set; }
         bool UseEndArrow { get; set; }
+        INodePoint StartPoint { get; }
+        INodePoint EndPoint { get; }
         INodePoint GetNodePointFromPos(UnitPoint pt);
     }
     public interface ICanvasOwner
@@ -52,12 +54,13 @@ namespace Canvas
 		ICanvasLayer ActiveLayer { get; set; }
 		ICanvasLayer GetLayer(string id);
 		IDrawObject CreateObject(string type, UnitPoint point, ISnapPoint snappoint);
-		void AddObject(ICanvasLayer layer, IDrawObject drawobject);
+        IDrawObject AddObject(ICanvasLayer layer, IDrawObject drawobject);
 		void DeleteObjects(IEnumerable<IDrawObject> objects);
 		void MoveObjects(UnitPoint offset, IEnumerable<IDrawObject> objects);
 		void CopyObjects(UnitPoint offset, IEnumerable<IDrawObject> objects);
 		void MoveNodes(UnitPoint position, IEnumerable<INodePoint> nodes);
         void MoveNodes(List<UnitPoint> allPosition, List<INodePoint> nodes);
+        void TrySnapConnectCrvToRectShape(ICanvas canvas, IConnectionCurve crv);
 
         IEditTool GetEditTool(string id);
 		void AfterEditObjects(IEditTool edittool);

@@ -205,6 +205,22 @@ namespace Canvas.DrawTools
             }
         }
 
+        public INodePoint StartPoint
+        {
+            get
+            {
+                return new NodePointMultiConnectionLine(this, NodePointMultiConnectionLine.ePoint.P1);
+            }
+        }
+
+        public INodePoint EndPoint
+        {
+            get
+            {
+                return new NodePointMultiConnectionLine(this, NodePointMultiConnectionLine.ePoint.P2);
+            }
+        }
+
         public void AfterSerializedIn()
         {
         }

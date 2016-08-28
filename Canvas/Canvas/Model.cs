@@ -208,15 +208,41 @@ namespace Canvas
 			}
 			return newobj as IDrawObject;
 		}
-		public void AddObject(ICanvasLayer layer, IDrawObject drawobject)
+		public IDrawObject AddObject(ICanvasLayer layer, IDrawObject drawobject)
 		{
-			//if (drawobject is DrawTools.IObjectEditInstance)
-			//	drawobject = ((DrawTools.IObjectEditInstance)drawobject).GetDrawObject();
-			if (m_undoBuffer.CanCapture)
+            if (drawobject is DrawTools.IObjectEditInstance)
+                drawobject = ((DrawTools.IObjectEditInstance)drawobject).GetDrawObject();
+            if (m_undoBuffer.CanCapture)
 				m_undoBuffer.AddCommand(new EditCommandAdd(layer, drawobject));
 			((DrawingLayer)layer).AddObject(drawobject);
+            return drawobject;
 		}
-		public void DeleteObjects(IEnumerable<IDrawObject> objects)
+
+        public void TrySnapConnectCrvToRectShape(ICanvas canvas, IConnectionCurve crv)
+        {
+            if (crv == null)
+                return;
+            List<IDrawObject> allSelectObjs = GetHitObjects(canvas, ((IDrawObject)crv).GetBoundingRect(canvas), true);
+            foreach (var curObj in allSelectObjs)
+            {
+                DrawTools.RectBase rectBase = curObj as DrawTools.RectBase;
+                if (rectBase == null)
+                    continue;
+
+                DrawTools.RectBase.eVertexId vid = rectBase.GetVertexIdFromPoint(crv.StartPoint.GetPosition());
+                if (vid != DrawTools.RectBase.eVertexId.None)
+                {
+                    rectBase.AttachConnectionCrvNode(crv.StartPoint);
+                }
+                vid = rectBase.GetVertexIdFromPoint(crv.EndPoint.GetPosition());
+                if (vid != DrawTools.RectBase.eVertexId.None)
+                {
+                    rectBase.AttachConnectionCrvNode(crv.EndPoint);
+                }
+            }
+        }
+
+        public void DeleteObjects(IEnumerable<IDrawObject> objects)
 		{
 			EditCommandRemove undocommand = null;
 			if (m_undoBuffer.CanCapture)

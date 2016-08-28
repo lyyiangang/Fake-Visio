@@ -197,6 +197,7 @@ namespace Canvas.DrawTools
 			float thWidth = ThresholdWidth(canvas, Width);
 			return HitUtil.IsPointInLine(m_p1, m_p2, point, thWidth);
 		}
+
 		public bool ObjectInRectangle(ICanvas canvas, RectangleF rect, bool anyPoint)
 		{
 			RectangleF boundingrect = GetBoundingRect(canvas);
@@ -204,6 +205,7 @@ namespace Canvas.DrawTools
 				return HitUtil.LineIntersectWithRect(m_p1, m_p2, rect);
 			return rect.Contains(boundingrect);
 		}
+
 		public virtual void Draw(ICanvas canvas, RectangleF unitrect)
 		{
 			Color color = Color;
@@ -229,12 +231,14 @@ namespace Canvas.DrawTools
 					DrawUtils.DrawNode(canvas, m_p2);
 			}
 		}
+
 		public virtual void OnMouseMove(ICanvas canvas, UnitPoint point)
 		{
 			if (Control.ModifierKeys == Keys.Control)
 				point = HitUtil.OrthoPointD(m_p1, point, 45);
 			m_p2 = point;
 		}
+
 		public virtual eDrawObjectMouseDown OnMouseDown(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)
 		{
 			Selected = false;
@@ -251,33 +255,25 @@ namespace Canvas.DrawTools
 				return eDrawObjectMouseDown.DoneRepeat;
 			}
 
-            if (snappoint is SnapPointBase && snappoint.Owner!=null)
-            {
-                NodePointLine.ePoint pointType = HitUtil.Distance(point, m_p1) <= HitUtil.Distance(point, m_p2) ?
-                    NodePointLine.ePoint.P1 : NodePointLine.ePoint.P2;
-                RectBase rect = snappoint.Owner as RectBase;
-                rect.AttachConnectionCrvNode(new NodePointLine(this, pointType));
-                if (pointType == NodePointLine.ePoint.P1)
-                    m_p1 = point;
-                else
-                    m_p2 = point;
-                return eDrawObjectMouseDown.DoneRepeat;
-            }
             if (Control.ModifierKeys == Keys.Control)
                 point = HitUtil.OrthoPointD(m_p1, point, 45);
             m_p2 = point;
             return eDrawObjectMouseDown.DoneRepeat;
 		}
+
 		public void OnMouseUp(ICanvas canvas, UnitPoint point, ISnapPoint snappoint)
 		{
 		}
+
 		public virtual void OnKeyDown(ICanvas canvas, KeyEventArgs e)
 		{
 		}
+
 		public UnitPoint RepeatStartingPoint
 		{
 			get { return m_p2; }
 		}
+
         string m_guid = string.Empty;
         public string Guid
         {
@@ -311,6 +307,22 @@ namespace Canvas.DrawTools
             set
             {
                 m_useEndArrow = value;
+            }
+        }
+
+        public INodePoint StartPoint
+        {
+            get
+            {
+				return new NodePointLine(this, NodePointLine.ePoint.P1);
+            }
+        }
+
+        public INodePoint EndPoint
+        {
+            get
+            {
+				return new NodePointLine(this, NodePointLine.ePoint.P2);
             }
         }
 

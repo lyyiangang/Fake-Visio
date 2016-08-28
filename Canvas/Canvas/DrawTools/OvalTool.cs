@@ -7,7 +7,6 @@ namespace Canvas.DrawTools
         public OvalShape()
             : base()
         {
-            Text = "i am a oval please show me";
         }
         public static new string ObjectType
         {
@@ -23,15 +22,15 @@ namespace Canvas.DrawTools
         {
             float halfWidth, halfHeight;
             GetHalfWidthAndHeight(out halfWidth, out halfHeight);
-            UnitPoint ptemp = new UnitPoint(Center.X - halfWidth, Center.Y + halfHeight);
+            UnitPoint ptLeftTop = new UnitPoint(Center.X - halfWidth, Center.Y + halfHeight);
             double rwidth = halfWidth * 2;
             double rheight = halfHeight * 2;
             Pen pen = canvas.CreatePen(Color, Width);
-            canvas.FillEllipse(canvas, FillShapeBrush, ptemp, (float)rwidth, (float)rheight);
-            canvas.DrawEllipse(canvas, pen, ptemp, (float)rwidth, (float)rheight);
+            canvas.FillEllipse(canvas, FillShapeBrush, ptLeftTop, (float)rwidth, (float)rheight);
+            canvas.DrawEllipse(canvas, pen, ptLeftTop, (float)rwidth, (float)rheight);
             if (Selected)
             {
-                canvas.DrawRectangle(canvas, DrawUtils.SelectedPen, ptemp, (float)rwidth, (float)rheight);
+                canvas.DrawRectangle(canvas, DrawUtils.SelectedPen, ptLeftTop, (float)rwidth, (float)rheight);
                 DrawUtils.DrawNode(canvas, m_center);
                 DrawNodes(canvas);
             }

@@ -216,6 +216,22 @@ namespace Canvas.DrawTools
             }
         }
 
+        public INodePoint StartPoint
+        {
+            get
+            {
+                return new NodePointCubicBezier(this, NodePointCubicBezier.ePoint.P1);
+            }
+        }
+
+        public INodePoint EndPoint
+        {
+            get
+            {
+                return new NodePointCubicBezier(this, NodePointCubicBezier.ePoint.P2);
+            }
+        }
+
         public void AfterSerializedIn()
         {
         }

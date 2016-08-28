@@ -157,6 +157,21 @@ namespace Canvas
 	}
 	public class HitUtil
 	{
+        public static void ActivateSymbolAtPoint(ICanvas canvas,List<IDrawObject> selectedObjs, UnitPoint hitPoint)
+        {
+            foreach(var obj in selectedObjs)
+            {
+                DrawTools.RectBase rectBase = obj as DrawTools.RectBase;
+                if (rectBase == null)
+                    continue;
+                List<DrawTools.Symbol> allSymbols = rectBase.GetAllSymbol();
+                foreach(var symbol in allSymbols)
+                {
+                    if (symbol.PointInObject(canvas, hitPoint))
+                        symbol.OnClick();
+                }
+            }
+        }
 		public static bool PointInPoint(UnitPoint p, UnitPoint tp, float tpThresHold)
 		{
 			if (p.IsEmpty || tp.IsEmpty)
@@ -847,6 +862,7 @@ namespace Canvas
 			m_canvas.CanvasCtrl.DoInvalidate(true);
 			return handled;
 		}
+
         void MoveReferenceNodesOfRect(List<INodePoint> selectedNodes, ISnapPoint snapPt, UnitPoint mouseunitpoint)
         {
             List<INodePoint> allConnectionCrvNodes = new List<INodePoint>();
@@ -854,31 +870,14 @@ namespace Canvas
             foreach(var curNode in selectedNodes)
             {
                 DeattachConnectionNode(curNode);
-                DrawTools.RectBase rectBase = curNode.GetOriginal() as DrawTools.RectBase;
                 IConnectionCurve connectionCrv = curNode.GetOriginal() as IConnectionCurve;
-
-                if (rectBase != null)
+                if (connectionCrv != null)
                 {
-                    List<DrawTools.RectBase.ConnectionCrvNodeToRectBaseNodePair> allNodes = rectBase.AllConnectionCrvNodes;
-                    if (allNodes.Count < 1)
-                        continue;
-                    foreach (var curConnectionCrvNode in allNodes)
-                    {
-                        allConnectionCrvNodes.Add(curConnectionCrvNode.connectionCrvNode);
-                        allNewPos.Add(rectBase.GetPointFromVertexId(curConnectionCrvNode.rectNodeId));
-                    }
-                }
-                
-                if (connectionCrv!=null && snapPt!=null && snapPt.Owner is DrawTools.RectBase)
-                {
-                    IDrawObject drawObj = connectionCrv as IDrawObject;
-                    drawObj.OnMouseDown(m_canvas, mouseunitpoint, snapPt);
+                    m_canvas.DataModel.TrySnapConnectCrvToRectShape(m_canvas, connectionCrv);
                 }
             }
-            if (allNewPos.Count < 1)
-                return;
-            m_canvas.Model.MoveNodes(allNewPos, allConnectionCrvNodes);
         }
+
         void DeattachConnectionNode(INodePoint node)
         {
              foreach(var curLayer in m_canvas.Model.Layers)
