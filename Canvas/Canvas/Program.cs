@@ -8,7 +8,6 @@ namespace Canvas
 	{
 		public static int TracePaint = 1;
 		public static string AppName = "OpenS-CAD";
-            class Person { };
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -16,6 +15,7 @@ namespace Canvas
 		static void Main()
 		{
      		//CommonTools.Tracing.EnableTrace();
+            //branch
 			CommonTools.Tracing.AddId(TracePaint);
 
 			Application.EnableVisualStyles();
