@@ -261,7 +261,14 @@ namespace Canvas.DrawTools
         public override void InitializeFromModel(UnitPoint point, DrawingLayer layer, ISnapPoint snap)
         {
             Color = layer.Color;
-            OnMouseDown(null, point, snap);
+            m_center = point;
+            const float defaultHalfWidth = 0.5f;
+            const float defaultHalfHeight = 0.25f;
+            m_p1.X = m_center.X - defaultHalfWidth;
+            m_p1.Y = m_center.Y + defaultHalfHeight;
+            m_p3.X = m_center.X + defaultHalfWidth;
+            m_p3.Y = m_center.Y - defaultHalfHeight;
+            //OnMouseDown(null, point, snap);
             Selected = true;
         }
         public UnitPoint[] TextInputPoint()

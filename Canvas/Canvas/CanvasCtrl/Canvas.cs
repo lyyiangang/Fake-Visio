@@ -407,39 +407,43 @@ namespace Canvas
 				if (m_newObject == null)
 				{
 					m_newObject = m_model.CreateObject(m_drawObjectId, mouseunitpoint, snappoint);
+                    IDrawObject addedObj = m_model.AddObject(m_model.ActiveLayer, m_newObject);
+                    if (m_newObject is IConnectionCurve)
+                        m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
                     DoInvalidate(false, m_newObject.GetBoundingRect(m_canvaswrapper));
-				}
-				else
-				{
-					if (m_newObject != null)
-					{
-						eDrawObjectMouseDown result = m_newObject.OnMouseDown(m_canvaswrapper, mouseunitpoint, snappoint);
-						switch (result)
-						{
-							case eDrawObjectMouseDown.Done:
-								IDrawObject addedObj= m_model.AddObject(m_model.ActiveLayer, m_newObject);
-                                if(m_newObject is IConnectionCurve)
-                                    m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
-								m_newObject = null;
-								DoInvalidate(true);
-								break;
-							case eDrawObjectMouseDown.DoneRepeat:
-                                addedObj = m_model.AddObject(m_model.ActiveLayer, m_newObject);
-                                if (addedObj is IConnectionCurve)
-                                    m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
-                                m_newObject = m_model.CreateObject(m_newObject.Id, m_newObject.RepeatStartingPoint, null);
-                                DoInvalidate(true);
-                                break;
-							case eDrawObjectMouseDown.Continue:
-								break;
-                            case eDrawObjectMouseDown.Cancel:
-                                m_newObject = null;
-                                DoInvalidate(true);
-                                break;
-						}
-					}
-				}
-			}
+                    m_newObject = null;
+                }
+                //else
+                //{
+                //	if (m_newObject != null)
+                //	{
+                //		eDrawObjectMouseDown result = m_newObject.OnMouseDown(m_canvaswrapper, mouseunitpoint, snappoint);
+                //		switch (result)
+                //		{
+                //			case eDrawObjectMouseDown.Done:
+                //				IDrawObject addedObj= m_model.AddObject(m_model.ActiveLayer, m_newObject);
+                //                            if(m_newObject is IConnectionCurve)
+                //                                m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
+                //				m_newObject = null;
+                //				DoInvalidate(true);
+                //				break;
+                //			case eDrawObjectMouseDown.DoneRepeat:
+                //                            addedObj = m_model.AddObject(m_model.ActiveLayer, m_newObject);
+                //                            if (addedObj is IConnectionCurve)
+                //                                m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
+                //                            m_newObject = m_model.CreateObject(m_newObject.Id, m_newObject.RepeatStartingPoint, null);
+                //                            DoInvalidate(true);
+                //                            break;
+                //			case eDrawObjectMouseDown.Continue:
+                //				break;
+                //                        case eDrawObjectMouseDown.Cancel:
+                //                            m_newObject = null;
+                //                            DoInvalidate(true);
+                //                            break;
+                //		}
+                //	}
+                //}
+            }
 		}
 
         TextBox m_rectBaseTextBox = null;
