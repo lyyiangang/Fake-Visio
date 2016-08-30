@@ -23,7 +23,7 @@ namespace Canvas.DrawTools
 		public NodePointLine(Line owner, ePoint id)
 		{
 			m_owner = owner;
-			m_clone = m_owner.Clone() as Line;
+            m_clone = m_owner.Clone() as Line;
 			m_pointId = id;
 			m_originalPoint = GetPoint(m_pointId);
 		}
@@ -42,8 +42,6 @@ namespace Canvas.DrawTools
 				pos = HitUtil.OrthoPointD(OtherPoint(m_pointId), pos, 45);
 			if (m_angleLocked || Control.ModifierKeys == (Keys)(Keys.Control | Keys.Shift))
 				pos = HitUtil.NearestPointOnLine(m_owner.P1, m_owner.P2, pos, true);
-            if(m_clone== null)
-                m_clone = m_owner.Clone() as Line;
             SetPoint(m_pointId, pos, m_clone);
 		}
 		public void Finish()
@@ -102,7 +100,12 @@ namespace Canvas.DrawTools
             return m_owner.P2;
 
         }
-	}
+
+        public void UpdateClone()
+        {
+            m_clone = m_owner.Clone() as Line;
+        }
+    }
 	class Line : DrawObjectBase, IDrawObject, ISerialize,IConnectionCurve
 	{
         System.Drawing.Drawing2D.AdjustableArrowCap m_arrowCap = null;
@@ -451,13 +454,11 @@ namespace Canvas.DrawTools
             List<IConnectionCurve> splitedCrvs = new List<IConnectionCurve>();
             UnitPoint midPt = HitUtil.LineMidpoint(m_p1, m_p2);
             rectCenterOffsetVector = midPt - rect.Center;
-            List<UnitPoint> allRectEdgeMidPts = new List<UnitPoint>()
+            List<UnitPoint> allRectEdgeMidPts = rect.GetAllMidPtsOfRect();
+            for(int ii=0;ii<allRectEdgeMidPts.Count;++ii)
             {
-                 rect.GetPointFromVertexId(RectBase.eVertexId.LeftEdgeMidPoint) + rectCenterOffsetVector,
-                 rect.GetPointFromVertexId(RectBase.eVertexId.RigthEdgeMidPoint) + rectCenterOffsetVector,
-                 rect.GetPointFromVertexId(RectBase.eVertexId.TopEdgeMidPoint) + rectCenterOffsetVector,
-                 rect.GetPointFromVertexId(RectBase.eVertexId.BottomEdgeMidPoint) + rectCenterOffsetVector
-             };
+                allRectEdgeMidPts[ii] += rectCenterOffsetVector;
+            }
             allRectEdgeMidPts.Sort((pt1,pt2)=>
             {
                 if (HitUtil.Distance(pt1, m_p1) > HitUtil.Distance(pt2, m_p1))

@@ -34,8 +34,6 @@ namespace Canvas.DrawTools
 
         public void SetPosition(UnitPoint pos)
         {
-            if(m_clone==null)
-                m_clone= m_owner.Clone() as MultiConnectionLines;
             SetPoint(m_pointId, pos, m_clone);
         }
         public void Cancel()
@@ -97,6 +95,11 @@ namespace Canvas.DrawTools
             else if (m_pointId == ePoint.P2)
                 return m_owner.P2;
             return UnitPoint.Empty;
+        }
+
+        public void UpdateClone()
+        {
+            m_clone = m_owner.Clone() as MultiConnectionLines;
         }
     }
 

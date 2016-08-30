@@ -35,8 +35,6 @@ namespace Canvas.DrawTools
 
         public void SetPosition(UnitPoint pos)
         {
-            if(m_clone==null)
-                m_clone = m_owner.Clone() as CubicBezier;
             SetPoint(m_pointId, pos, m_clone);
         }
         public void Cancel()
@@ -99,6 +97,11 @@ namespace Canvas.DrawTools
                 return m_owner.P2;
             return UnitPoint.Empty;
     }
+
+        public void UpdateClone()
+        {
+            m_clone = m_owner.Clone() as CubicBezier;
+        }
     }
     class CubicBezier : DrawObjectBase, IDrawObject, ISerialize, IConnectionCurve
     {
@@ -473,7 +476,23 @@ namespace Canvas.DrawTools
 
         public List<IConnectionCurve> Split(ICanvas canvas, DrawTools.RectBase rect, ref UnitPoint rectCenterOffsetVector)
         {
-            throw new NotImplementedException();
+            System.Diagnostics.Debug.Assert(GetBoundingRect(canvas).IntersectsWith(rect.GetExactBoundingRect(canvas)));
+            List<IConnectionCurve> splitedCrvs = new List<IConnectionCurve>();
+            rectCenterOffsetVector = m_center - rect.Center;
+            List<UnitPoint> allRectEdgeMidPts = rect.GetAllMidPtsOfRect();
+            for (int ii = 0; ii < allRectEdgeMidPts.Count; ++ii)
+            {
+                allRectEdgeMidPts[ii] += rectCenterOffsetVector;
+            }
+            allRectEdgeMidPts.Sort((pt1, pt2) =>
+            {
+                if (HitUtil.Distance(pt1, m_p1) > HitUtil.Distance(pt2, m_p1))
+                    return 1;
+                return -1;
+            });
+            splitedCrvs.Add(new CubicBezier(m_p1, allRectEdgeMidPts.First(), Width, Color));
+            splitedCrvs.Add(new CubicBezier(allRectEdgeMidPts.Last(), m_p2, Width, Color));
+            return splitedCrvs;
         }
     }
 }

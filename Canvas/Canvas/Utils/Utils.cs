@@ -1004,11 +1004,10 @@ namespace Canvas
             if (endObj == null)
                 return;
             UnitPoint startPt, endPt;
-            ClosestPointPair(GetAllMidPtsOfRect((DrawTools.RectBase)startObj), GetAllMidPtsOfRect((DrawTools.RectBase)endObj), out startPt, out endPt);
+            ClosestPointPair(((DrawTools.RectBase)startObj).GetAllMidPtsOfRect(), ((DrawTools.RectBase)endObj).GetAllMidPtsOfRect(), out startPt, out endPt);
             INodePoint startNodePt = crv.StartPoint;
             startNodePt.SetPosition(startPt);
             startNodePt.Finish();
-            System.Diagnostics.Debug.Assert(true, "node finish order is very important, this place and RectBase::UpdateCenter need attension");
             INodePoint endNodePt = crv.EndPoint;
             endNodePt.SetPosition(endPt);
             endNodePt.Finish();
@@ -1034,16 +1033,16 @@ namespace Canvas
             }
         }
 
-        static List<UnitPoint> GetAllMidPtsOfRect(DrawTools.RectBase rect)
-        {
-            List<UnitPoint> allMidPts = new List<UnitPoint>()
-            {
-                rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.LeftEdgeMidPoint),
-                rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.RigthEdgeMidPoint),
-                rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.TopEdgeMidPoint),
-                rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.BottomEdgeMidPoint)
-            };
-            return allMidPts;
-        }
+       //public static List<UnitPoint> GetAllMidPtsOfRect(DrawTools.RectBase rect)
+       // {
+       //     List<UnitPoint> allMidPts = new List<UnitPoint>()
+       //     {
+       //         rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.LeftEdgeMidPoint),
+       //         rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.RigthEdgeMidPoint),
+       //         rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.TopEdgeMidPoint),
+       //         rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.BottomEdgeMidPoint)
+       //     };
+       //     return allMidPts;
+       // }
     }
 }

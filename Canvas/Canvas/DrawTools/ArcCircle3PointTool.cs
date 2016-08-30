@@ -104,6 +104,11 @@ namespace Canvas.DrawTools
         {
             throw new NotImplementedException();
         }
+
+        public void UpdateClone()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 

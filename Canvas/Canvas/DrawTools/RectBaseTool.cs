@@ -98,6 +98,11 @@ namespace Canvas.DrawTools
                 return m_owner.P3;
             return m_owner.Center;
         }
+
+        public void UpdateClone()
+        {
+            m_clone = m_owner.Clone() as RectBase;
+        }
         #endregion
     }
 
@@ -302,6 +307,7 @@ namespace Canvas.DrawTools
             m_center = HitUtil.LineMidpoint(m_p1, m_p3);
             foreach (var curItme in m_allConnectionCrvNodes)
             {
+                curItme.connectionCrvNode.UpdateClone();
                 curItme.connectionCrvNode.SetPosition(GetPointFromVertexId(curItme.rectNodeId));
                 curItme.connectionCrvNode.Finish();
             }
@@ -613,6 +619,18 @@ namespace Canvas.DrawTools
         {
             List<Symbol> allSymbols = new List<Symbol>();
             return allSymbols;
+        }
+
+        public List<UnitPoint> GetAllMidPtsOfRect()
+        {
+            List<UnitPoint> allMidPts = new List<UnitPoint>()
+            {
+                GetPointFromVertexId(eVertexId.LeftEdgeMidPoint),
+                GetPointFromVertexId(eVertexId.RigthEdgeMidPoint),
+                GetPointFromVertexId(eVertexId.TopEdgeMidPoint),
+                GetPointFromVertexId(eVertexId.BottomEdgeMidPoint)
+            };
+            return allMidPts;
         }
     }
 }
