@@ -27,6 +27,18 @@ namespace Canvas
 			left.Y += right.Y;
 			return left;
 		}
+        public static UnitPoint operator - (UnitPoint left, UnitPoint right)
+        {
+            left.X -= right.X;
+            left.Y -= right.Y;
+            return left;
+        }
+        public static UnitPoint operator * (UnitPoint left, float scale)
+        {
+            left.X *= scale;
+            left.Y *= scale;
+            return left;
+        }
 		double m_x;
 		double m_y;
 		static UnitPoint()
@@ -650,6 +662,7 @@ namespace Canvas
 			//m_Center.m_y = -1*(m_Center.x() - (pt1->x()+pt2->x())/2)/aSlope +  (pt1->y()+pt2->y())/2;
 			return new UnitPoint((float)center_x, (float)center_y);
 		}
+
 	}
 	public class SelectionRectangle
 	{
@@ -944,14 +957,93 @@ namespace Canvas
 
 	}
 
-    public class DebugUtls
+    public class DrawObjectUtils
     {
-       static public void DrawPoints(ICanvas canvas, List<UnitPoint> pts)
+        public static List<IConnectionCurve> SplitConnectionCurveByRect(ICanvas canvas, DrawTools.RectBase rectObj, ref IConnectionCurve originalConnectionCrv)
         {
-            foreach (var pt in pts)
+            List<IConnectionCurve> splitedConnectionCrvs = new List<IConnectionCurve>();
+            originalConnectionCrv = null;
+            List<IDrawObject> collisionObjs= canvas.DataModel.GetHitObjects(canvas, rectObj.GetBoundingRect(canvas), true);
+            if (collisionObjs.Count < 1)
+                return splitedConnectionCrvs;
+            double minDist = double.MaxValue;
+            IConnectionCurve closestCrv = null;
+            collisionObjs.ForEach(curObj =>
             {
-                System.Diagnostics.Debug.Assert(false);
+                IConnectionCurve crv = curObj as IConnectionCurve;
+                if (crv==null)
+                    return;
+                UnitPoint midPt = (crv.StartPoint.GetPosition() + crv.EndPoint.GetPosition()) * 0.5f;
+                double dist = HitUtil.Distance(midPt, rectObj.Center);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    closestCrv= crv;
+                }
             }
+            );
+            if (closestCrv == null)
+                return splitedConnectionCrvs;
+            //since we get the closest crv, we can split it to two part right now
+            originalConnectionCrv = closestCrv;
+            UnitPoint rectCenterOffsetVector = UnitPoint.Empty;
+            splitedConnectionCrvs= closestCrv.Split(canvas,rectObj, ref rectCenterOffsetVector);
+            if(rectCenterOffsetVector!=UnitPoint.Empty)
+                rectObj.Center += rectCenterOffsetVector;
+            return splitedConnectionCrvs;
+        }
+
+        public static void SnapConnectionCrvEndPtsToRectBoundary(ICanvas canvas,IConnectionCurve crv)
+        {
+            IDrawObject startObj = canvas.DataModel.GetHitObjects(canvas, crv.StartPoint.GetPosition()).Find(curObj =>
+                 { return curObj is DrawTools.RectBase; });
+            if (startObj == null)
+                return;
+            IDrawObject endObj = canvas.DataModel.GetHitObjects(canvas, crv.EndPoint.GetPosition()).Find(curObj =>
+            { return curObj is DrawTools.RectBase; });
+            if (endObj == null)
+                return;
+            UnitPoint startPt, endPt;
+            ClosestPointPair(GetAllMidPtsOfRect((DrawTools.RectBase)startObj), GetAllMidPtsOfRect((DrawTools.RectBase)endObj), out startPt, out endPt);
+            INodePoint startNodePt = crv.StartPoint;
+            startNodePt.SetPosition(startPt);
+            startNodePt.Finish();
+            System.Diagnostics.Debug.Assert(true, "node finish order is very important, this place and RectBase::UpdateCenter need attension");
+            INodePoint endNodePt = crv.EndPoint;
+            endNodePt.SetPosition(endPt);
+            endNodePt.Finish();
+        }
+
+        static void ClosestPointPair(List<UnitPoint> startPts,List<UnitPoint> endPts, out UnitPoint startPt,out UnitPoint endPt)
+        {
+            double minDist = double.MaxValue;
+            startPt = UnitPoint.Empty;
+            endPt = UnitPoint.Empty;
+            foreach(var curStartPt in startPts)
+            {
+                foreach(var curEndPt in endPts)
+                {
+                    double curDist = HitUtil.Distance(curStartPt, curEndPt);
+                    if(curDist< minDist)
+                    {
+                        minDist = curDist;
+                        startPt = curStartPt;
+                        endPt = curEndPt;
+                    }
+                }
+            }
+        }
+
+        static List<UnitPoint> GetAllMidPtsOfRect(DrawTools.RectBase rect)
+        {
+            List<UnitPoint> allMidPts = new List<UnitPoint>()
+            {
+                rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.LeftEdgeMidPoint),
+                rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.RigthEdgeMidPoint),
+                rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.TopEdgeMidPoint),
+                rect.GetPointFromVertexId(DrawTools.RectBase.eVertexId.BottomEdgeMidPoint)
+            };
+            return allMidPts;
         }
     }
 }

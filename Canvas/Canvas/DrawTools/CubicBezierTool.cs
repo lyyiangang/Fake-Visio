@@ -466,12 +466,12 @@ namespace Canvas.DrawTools
             m_center.Y = midPt[1];
         }
 
-        public RectangleF GetExactBoundingRect(ICanvas canvas)
+        public INodePoint GetNodePointFromPos(UnitPoint pt)
         {
             throw new NotImplementedException();
         }
 
-        public INodePoint GetNodePointFromPos(UnitPoint pt)
+        public List<IConnectionCurve> Split(ICanvas canvas, DrawTools.RectBase rect, ref UnitPoint rectCenterOffsetVector)
         {
             throw new NotImplementedException();
         }

@@ -206,7 +206,6 @@ namespace Canvas.DrawTools
 			get { return m_center; }
 			set { m_center = value;
                 bool isEmpty = m_center.IsEmpty;
-                int aa = 0;
             }
 		}
 		[XmlSerializable]
@@ -675,11 +674,6 @@ namespace Canvas.DrawTools
 		{
 			return HitUtil.PointOncircle(m_center, m_radius, HitUtil.DegressToRadians(angle));
 		}
-
-        public RectangleF GetExactBoundingRect(ICanvas canvas)
-        {
-            throw new NotImplementedException();
-        }
 
         protected UnitPoint RadiusPoint
 		{

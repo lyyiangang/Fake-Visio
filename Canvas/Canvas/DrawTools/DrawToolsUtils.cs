@@ -61,7 +61,7 @@ namespace Canvas.DrawTools
 	{
 		IDrawObject GetDrawObject();
 	}
-	abstract class DrawObjectBase
+   public abstract class DrawObjectBase
 	{
 		float			m_width;
 		Color			m_color;

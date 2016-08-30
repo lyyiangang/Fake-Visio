@@ -222,13 +222,11 @@ namespace Canvas
         {
             if (crv == null)
                 return;
-            List<IDrawObject> allSelectObjs = GetHitObjects(canvas, ((IDrawObject)crv).GetBoundingRect(canvas), true);
-            foreach (var curObj in allSelectObjs)
+            List<IDrawObject> allRectObjs = GetHitObjects(canvas, ((IDrawObject)crv).GetBoundingRect(canvas), true).FindAll(
+                curObj=> { return curObj is DrawTools.RectBase; });
+            foreach (var curObj in allRectObjs)
             {
                 DrawTools.RectBase rectBase = curObj as DrawTools.RectBase;
-                if (rectBase == null)
-                    continue;
-
                 DrawTools.RectBase.eVertexId vid = rectBase.GetVertexIdFromPoint(crv.StartPoint.GetPosition());
                 if (vid != DrawTools.RectBase.eVertexId.None)
                 {

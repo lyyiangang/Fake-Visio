@@ -101,7 +101,7 @@ namespace Canvas.DrawTools
         #endregion
     }
 
-    class Symbol
+  public  class Symbol
     {
         string m_txt = string.Empty;
         RectangleF m_boundingBox = RectangleF.Empty;
@@ -173,7 +173,7 @@ namespace Canvas.DrawTools
         }
     }
 
-    class RectBase : DrawObjectBase, IDrawObject, ISerialize
+ public  class RectBase : DrawObjectBase, IDrawObject, ISerialize
     {
         //p1------------------------p2
         //|                         |
@@ -262,8 +262,8 @@ namespace Canvas.DrawTools
         {
             Color = layer.Color;
             m_center = point;
-            const float defaultHalfWidth = 0.5f;
-            const float defaultHalfHeight = 0.25f;
+            const float defaultHalfWidth = 0.8f;
+            const float defaultHalfHeight = 0.4f;
             m_p1.X = m_center.X - defaultHalfWidth;
             m_p1.Y = m_center.Y + defaultHalfHeight;
             m_p3.X = m_center.X + defaultHalfWidth;
@@ -299,9 +299,7 @@ namespace Canvas.DrawTools
 
         void UpdateCenter()
         {
-            m_center.X = (m_p1.X + m_p3.X) * 0.5f;
-            m_center.Y = (m_p1.Y + m_p3.Y) * 0.5f;
-
+            m_center = HitUtil.LineMidpoint(m_p1, m_p3);
             foreach (var curItme in m_allConnectionCrvNodes)
             {
                 curItme.connectionCrvNode.SetPosition(GetPointFromVertexId(curItme.rectNodeId));

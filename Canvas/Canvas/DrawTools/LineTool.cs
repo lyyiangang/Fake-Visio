@@ -440,14 +440,33 @@ namespace Canvas.DrawTools
 				P2 = newlinepoint;
 		}
 
-        public RectangleF GetExactBoundingRect(ICanvas canvas)
+        public INodePoint GetNodePointFromPos(UnitPoint pt)
         {
             throw new NotImplementedException();
         }
 
-        public INodePoint GetNodePointFromPos(UnitPoint pt)
+        public List<IConnectionCurve> Split(ICanvas canvas, DrawTools.RectBase rect, ref UnitPoint rectCenterOffsetVector)
         {
-            throw new NotImplementedException();
+            System.Diagnostics.Debug.Assert(GetBoundingRect(canvas).IntersectsWith(rect.GetExactBoundingRect(canvas)));
+            List<IConnectionCurve> splitedCrvs = new List<IConnectionCurve>();
+            UnitPoint midPt = HitUtil.LineMidpoint(m_p1, m_p2);
+            rectCenterOffsetVector = midPt - rect.Center;
+            List<UnitPoint> allRectEdgeMidPts = new List<UnitPoint>()
+            {
+                 rect.GetPointFromVertexId(RectBase.eVertexId.LeftEdgeMidPoint) + rectCenterOffsetVector,
+                 rect.GetPointFromVertexId(RectBase.eVertexId.RigthEdgeMidPoint) + rectCenterOffsetVector,
+                 rect.GetPointFromVertexId(RectBase.eVertexId.TopEdgeMidPoint) + rectCenterOffsetVector,
+                 rect.GetPointFromVertexId(RectBase.eVertexId.BottomEdgeMidPoint) + rectCenterOffsetVector
+             };
+            allRectEdgeMidPts.Sort((pt1,pt2)=>
+            {
+                if (HitUtil.Distance(pt1, m_p1) > HitUtil.Distance(pt2, m_p1))
+                    return 1;
+                return -1;
+            });
+            splitedCrvs.Add(new Line(m_p1, allRectEdgeMidPts[0], Width, Color));
+            splitedCrvs.Add(new Line(allRectEdgeMidPts[3], m_p2, Width, Color));
+            return splitedCrvs;
         }
     }
 	class LineEdit : Line, IObjectEditInstance

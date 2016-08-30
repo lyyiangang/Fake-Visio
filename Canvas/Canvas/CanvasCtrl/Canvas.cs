@@ -407,42 +407,59 @@ namespace Canvas
 				if (m_newObject == null)
 				{
 					m_newObject = m_model.CreateObject(m_drawObjectId, mouseunitpoint, snappoint);
-                    IDrawObject addedObj = m_model.AddObject(m_model.ActiveLayer, m_newObject);
-                    if (m_newObject is IConnectionCurve)
-                        m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
-                    DoInvalidate(false, m_newObject.GetBoundingRect(m_canvaswrapper));
-                    m_newObject = null;
+                    if (m_newObject is DrawTools.RectBase)
+                    {
+                        IDrawObject addedRectObj= m_model.AddObject(m_model.ActiveLayer, m_newObject);
+                        //when the new rect is on a connection curve, we need to split this connection curve to 2 parts.
+                        IConnectionCurve originalConnectionCrv=null;
+                        List<IConnectionCurve> newConnectionCrvs= DrawObjectUtils.SplitConnectionCurveByRect(m_canvaswrapper, (DrawTools.RectBase)addedRectObj, ref originalConnectionCrv);
+                        if (originalConnectionCrv != null && newConnectionCrvs.Count > 0)
+                            m_model.DeleteObjects(new IDrawObject[] { (IDrawObject)originalConnectionCrv });
+                        foreach(var crv in newConnectionCrvs)
+                        {
+                            IDrawObject newAddedCrv = m_model.AddObject(m_model.ActiveLayer,(IDrawObject) crv);
+                            m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)newAddedCrv);
+                        }
+                        DoInvalidate(false, m_newObject.GetBoundingRect(m_canvaswrapper));
+                        m_newObject = null;
+                    }
                 }
-                //else
-                //{
-                //	if (m_newObject != null)
-                //	{
-                //		eDrawObjectMouseDown result = m_newObject.OnMouseDown(m_canvaswrapper, mouseunitpoint, snappoint);
-                //		switch (result)
-                //		{
-                //			case eDrawObjectMouseDown.Done:
-                //				IDrawObject addedObj= m_model.AddObject(m_model.ActiveLayer, m_newObject);
-                //                            if(m_newObject is IConnectionCurve)
-                //                                m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
-                //				m_newObject = null;
-                //				DoInvalidate(true);
-                //				break;
-                //			case eDrawObjectMouseDown.DoneRepeat:
-                //                            addedObj = m_model.AddObject(m_model.ActiveLayer, m_newObject);
-                //                            if (addedObj is IConnectionCurve)
-                //                                m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
-                //                            m_newObject = m_model.CreateObject(m_newObject.Id, m_newObject.RepeatStartingPoint, null);
-                //                            DoInvalidate(true);
-                //                            break;
-                //			case eDrawObjectMouseDown.Continue:
-                //				break;
-                //                        case eDrawObjectMouseDown.Cancel:
-                //                            m_newObject = null;
-                //                            DoInvalidate(true);
-                //                            break;
-                //		}
-                //	}
-                //}
+                else
+                {
+                    if (m_newObject != null)
+                    {
+                        eDrawObjectMouseDown result = m_newObject.OnMouseDown(m_canvaswrapper, mouseunitpoint, snappoint);
+                        switch (result)
+                        {
+                            case eDrawObjectMouseDown.Done:
+                                if(m_newObject is IConnectionCurve)
+                                {
+                                    //if the connection curve's start point and end point are in 2 rectangle, we should modify this curve's
+                                    //end points to both rect's middle points on the edges.
+                                    DrawObjectUtils.SnapConnectionCrvEndPtsToRectBoundary(m_canvaswrapper, (IConnectionCurve) m_newObject);
+                                }
+                                IDrawObject addedObj = m_model.AddObject(m_model.ActiveLayer, m_newObject);
+                                if (m_newObject is IConnectionCurve)
+                                    m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
+                                m_newObject = null;
+                                DoInvalidate(true);
+                                break;
+                            case eDrawObjectMouseDown.DoneRepeat:
+                                addedObj = m_model.AddObject(m_model.ActiveLayer, m_newObject);
+                                if (addedObj is IConnectionCurve)
+                                    m_model.TrySnapConnectCrvToRectShape(m_canvaswrapper, (IConnectionCurve)addedObj);
+                                m_newObject = m_model.CreateObject(m_newObject.Id, m_newObject.RepeatStartingPoint, null);
+                                DoInvalidate(true);
+                                break;
+                            case eDrawObjectMouseDown.Continue:
+                                break;
+                            case eDrawObjectMouseDown.Cancel:
+                                m_newObject = null;
+                                DoInvalidate(true);
+                                break;
+                        }
+                    }
+                }
             }
 		}
 
@@ -461,7 +478,7 @@ namespace Canvas
             }
             if (rectBase == null)
                 return;
-            //lay down a textbox on the rect shape
+            //lay down a textbox on the rect shape, double click on it and change it's text
             RectangleF rect = ScreenUtils.ToScreenNormalized(m_canvaswrapper, rectBase.GetExactBoundingRect(m_canvaswrapper));
             rect.Inflate(1, 1);
             m_rectBaseTextBox = new TextBox();

@@ -13,6 +13,9 @@ namespace Canvas
         INodePoint StartPoint { get; }
         INodePoint EndPoint { get; }
         INodePoint GetNodePointFromPos(UnitPoint pt);
+        //split the connection curve at the pos that intersect with rect, 2 split connection curve will be returned.
+        //rectCenterOffsetVector can be used to move rect to promise the rect's midNode is coincidence with curve's ends.
+        List<IConnectionCurve> Split(ICanvas canvas, DrawTools.RectBase rect, ref UnitPoint rectCenterOffsetVector);
     }
     public interface ICanvasOwner
 	{
