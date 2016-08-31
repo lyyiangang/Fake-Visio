@@ -112,7 +112,8 @@ namespace Canvas
 		IDrawObject GetOriginal();
 		void Cancel();
 		void Finish();
-		void SetPosition(UnitPoint pos);
+        void UpdateClone();
+        void SetPosition(UnitPoint pos);
         UnitPoint GetPosition();
 		void Undo();
 		void Redo();

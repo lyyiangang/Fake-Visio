@@ -35,8 +35,6 @@ namespace Canvas.DrawTools
 
         public void SetPosition(UnitPoint pos)
         {
-            if(m_clone==null)
-                m_clone = m_owner.Clone() as CubicBezier;
             SetPoint(m_pointId, pos, m_clone);
         }
         public void Cancel()
@@ -99,6 +97,11 @@ namespace Canvas.DrawTools
                 return m_owner.P2;
             return UnitPoint.Empty;
     }
+
+        public void UpdateClone()
+        {
+            m_clone = m_owner.Clone() as CubicBezier;
+        }
     }
     class CubicBezier : DrawObjectBase, IDrawObject, ISerialize, IConnectionCurve
     {

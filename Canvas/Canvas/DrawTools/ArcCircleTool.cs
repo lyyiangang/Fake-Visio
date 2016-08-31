@@ -68,6 +68,11 @@ namespace Canvas.DrawTools
         {
             throw new NotImplementedException();
         }
+
+        public void UpdateClone()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 	class NodePointArcRadius : INodePoint
@@ -120,6 +125,11 @@ namespace Canvas.DrawTools
 		}
 
         public UnitPoint GetPosition()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateClone()
         {
             throw new NotImplementedException();
         }
@@ -181,6 +191,11 @@ namespace Canvas.DrawTools
 		}
 
         public UnitPoint GetPosition()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateClone()
         {
             throw new NotImplementedException();
         }

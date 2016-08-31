@@ -42,8 +42,6 @@ namespace Canvas.DrawTools
 				pos = HitUtil.OrthoPointD(OtherPoint(m_pointId), pos, 45);
 			if (m_angleLocked || Control.ModifierKeys == (Keys)(Keys.Control | Keys.Shift))
 				pos = HitUtil.NearestPointOnLine(m_owner.P1, m_owner.P2, pos, true);
-            if(m_clone== null)
-                m_clone = m_owner.Clone() as Line;
             SetPoint(m_pointId, pos, m_clone);
 		}
 		public void Finish()
@@ -102,7 +100,12 @@ namespace Canvas.DrawTools
             return m_owner.P2;
 
         }
-	}
+
+        public void UpdateClone()
+        {
+            m_clone = m_owner.Clone() as Line;
+        }
+    }
 	class Line : DrawObjectBase, IDrawObject, ISerialize,IConnectionCurve
 	{
         System.Drawing.Drawing2D.AdjustableArrowCap m_arrowCap = null;

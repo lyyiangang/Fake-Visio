@@ -98,6 +98,11 @@ namespace Canvas.DrawTools
                 return m_owner.P3;
             return m_owner.Center;
         }
+
+        public void UpdateClone()
+        {
+             m_clone = m_owner.Clone() as RectBase;
+        }
         #endregion
     }
 
@@ -297,6 +302,7 @@ namespace Canvas.DrawTools
 
             foreach (var curItme in m_allConnectionCrvNodes)
             {
+                curItme.connectionCrvNode.UpdateClone();
                 curItme.connectionCrvNode.SetPosition(GetPointFromVertexId(curItme.rectNodeId));
                 curItme.connectionCrvNode.Finish();
             }
@@ -358,10 +364,6 @@ namespace Canvas.DrawTools
         }
         public bool ObjectInRectangle(ICanvas canvas, RectangleF rect, bool anyPoint)
         {
-            //float halfWidth, halfHeight;
-            //GetHalfWidthAndHeight(out halfWidth, out halfHeight);
-            //RectangleF shapeRect = new RectangleF((float)m_center.X, (float)m_center.Y, 0, 0);
-            //shapeRect.Inflate(halfWidth, halfHeight);
             RectangleF boundingrect = GetBoundingRect(canvas);
             if (anyPoint)
             {
